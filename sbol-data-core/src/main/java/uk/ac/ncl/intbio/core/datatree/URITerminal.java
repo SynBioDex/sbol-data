@@ -10,6 +10,7 @@ public class URITerminal implements TreeTerminal{
 	{
 		this.value=value;		
 	}
+	
 	@Override
 	public URI getValue()
 	{		

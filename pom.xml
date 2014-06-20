@@ -21,6 +21,7 @@
     <module>sbol-data-core</module>
     <module>sbol-data-nativeSbol</module>
     <module>sbol-data-io-RDF</module>
+    <module>sbol-data-examples</module>
   </modules>
     <build>
         <pluginManagement>

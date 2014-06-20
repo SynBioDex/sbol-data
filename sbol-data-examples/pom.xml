@@ -8,8 +8,9 @@
     <version>0.1.0-SNAPSHOT</version>
   </parent>
   <groupId>uk.ac.ncl.intbio</groupId>
-  <artifactId>sbol-data-core</artifactId>
-  <name>sbol-data-core</name>
+  <artifactId>sbol-data-examples</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>sbol-data-examples</name>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
@@ -18,5 +19,15 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+        <dependency>
+    	<groupId>uk.ac.ncl.intbio</groupId>
+    	<artifactId>sbol-data-core</artifactId>
+    	<version>0.1.0-SNAPSHOT</version>
+  	</dependency>
+  	    <dependency>
+    	<groupId>uk.ac.ncl.intbio</groupId>
+    	<artifactId>sbol-data-io-RDF</artifactId>
+    	<version>0.1.0-SNAPSHOT</version>
+  	</dependency>
   </dependencies>
 </project>
