@@ -2,6 +2,6 @@ package uk.ac.ncl.intbio.core.datatree;
 
 import java.util.List;
 
-public interface Document<P extends PropertyValue> {
-	public List<NamedProperty<P>> getProperties();
+public interface Document<N, P extends PropertyValue> {
+	public List<NamedProperty<N, P>> getProperties();
 }
