@@ -4,4 +4,6 @@ import java.util.List;
 
 public interface Document<N, P extends PropertyValue> {
 	public List<NamedProperty<N, P>> getProperties();
+	public List<NamespaceBinding> getNamespaceBindings();
+	
 }

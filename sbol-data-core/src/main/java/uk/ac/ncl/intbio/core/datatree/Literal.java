@@ -2,6 +2,8 @@ package uk.ac.ncl.intbio.core.datatree;
 
 import java.net.URI;
 
+import javax.xml.namespace.QName;
+
 public interface Literal extends PropertyValue
 {
 	public Object getValue();
@@ -20,4 +22,11 @@ public interface Literal extends PropertyValue
     @Override
     Integer getValue();
   }
+  
+  public static interface QNameLiteral extends Literal {
+	    @Override
+	    QName getValue();
+	  }
+	  
+  
 }

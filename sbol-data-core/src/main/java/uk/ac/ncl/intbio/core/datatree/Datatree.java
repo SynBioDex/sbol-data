@@ -1,7 +1,10 @@
 package uk.ac.ncl.intbio.core.datatree;
 
 import javax.xml.namespace.QName;
+
+import java.net.URI;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,6 +31,25 @@ public final class Datatree
   public static <N> TopLevelDocument<N> TopLevelDocument(final N type,
                                                          final N identity,
                                                          final NamedProperties<N, PropertyValue> properties) {
+    return TopLevelDocument(NamespaceBindings(), type, identity, properties);
+  }
+  
+  public static interface NamespaceBindings {
+	  public List<NamespaceBinding> getBindings();
+  }
+  
+  public static NamespaceBindings NamespaceBindings(final NamespaceBinding ...bindings) {
+	  return new NamespaceBindings() {
+	    public List<NamespaceBinding> getBindings() {
+		  return Arrays.asList(bindings);
+	    }
+	  };
+  }
+
+  public static <N> TopLevelDocument<N> TopLevelDocument(final NamespaceBindings namespaceBindings,
+		                                                 final N type,
+                                                         final N identity,
+                                                         final NamedProperties<N, PropertyValue> properties) {
     return new TopLevelDocument<N>() {
       @Override
       public N getType() {
@@ -43,9 +65,65 @@ public final class Datatree
       public List<NamedProperty<N, PropertyValue>> getProperties() {
         return properties.getProperties();
       }
+
+	  @Override
+	  public List<uk.ac.ncl.intbio.core.datatree.NamespaceBinding> getNamespaceBindings()
+	  {
+		// TODO Auto-generated method stub
+		return namespaceBindings.getBindings();
+	  }
     };
   }
 
+  public static interface NestedDocuments<N>  extends PropertyValue {
+	    public List<NestedDocument<N>> getDocuments();
+  }
+  
+  @SafeVarargs
+  public static <N> NestedDocuments<N> NestedDocuments(final NestedDocument<N> ... documents) {
+    return new NestedDocuments<N>() {
+      @Override
+      public List<NestedDocument<N>> getDocuments() {
+        return Arrays.asList(documents);
+      }
+    };
+  }
+  
+  public static <N> NestedDocument<N> NestedDocument(final N type, final N identity, final NamedProperties<N, PropertyValue> properties) {
+	  return NestedDocument(NamespaceBindings(), type, identity, properties);
+  }
+  
+	public static <N> NestedDocument<N> NestedDocument(final NamespaceBindings bindings, final N type, final N identity, final NamedProperties<N, PropertyValue> properties)
+	{
+		return new NestedDocument<N>()
+		{
+			@Override
+			public N getType()
+			{
+				return type;
+			}
+
+			@Override
+			public N getIdentity()
+			{
+				return identity;
+			}
+
+			@Override
+			public List<NamedProperty<N, PropertyValue>> getProperties()
+			{
+				return properties.getProperties();
+			}
+
+			@Override
+			public List<uk.ac.ncl.intbio.core.datatree.NamespaceBinding> getNamespaceBindings()
+			{
+				return bindings.getBindings();
+			}
+		};
+	}
+  
+  
   public static interface NamedProperties<N, P extends PropertyValue> {
     public List<NamedProperty<N, P>> getProperties();
   }
@@ -72,6 +150,13 @@ public final class Datatree
 
   public static <N> DocumentRoot<N> DocumentRoot(final TopLevelDocuments<N> documents,
                                                  final NamedProperties<N, Literal> properties) {
+	  return DocumentRoot(NamespaceBindings(), documents, properties);
+  }
+  
+  public static <N> DocumentRoot<N> DocumentRoot(
+		  final NamespaceBindings bindings,
+		  final TopLevelDocuments<N> documents,
+          final NamedProperties<N, Literal> properties) {
     return new DocumentRoot<N>() {
       @Override
       public List<TopLevelDocument<N>> getTopLevelDocuments() {
@@ -81,6 +166,11 @@ public final class Datatree
       @Override
       public List<NamedProperty<N, Literal>> getProperties() {
         return properties.getProperties();
+      }
+      
+      @Override
+      public List<NamespaceBinding> getNamespaceBindings() {
+    	  return bindings.getBindings();
       }
     };
   }
@@ -122,7 +212,85 @@ public final class Datatree
       }
     };
   }
+  
+  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final int value) {
+	    return new NamedProperty<N, PropertyValue>() {
+	      @Override
+	      public Literal.IntegerLiteral getValue() {
+	        return new Literal.IntegerLiteral() {
+	          @Override
+	          public Integer getValue() {
+	            return value;
+	          }
+	        };
+	      }
 
+	      @Override
+	      public N getName() {
+	        return name;
+	      }
+	    };
+	  }
+  
+  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final QName value) {
+	    return new NamedProperty<N, PropertyValue>() {
+	      @Override
+	      public Literal.QNameLiteral getValue() {
+	        return new Literal.QNameLiteral()
+			{							
+	          @Override
+	          public QName getValue() {
+	            return value;
+	          }
+	        };
+	      }
+
+	      @Override
+	      public N getName() {
+	        return name;
+	      }
+	    };
+	  }
+  
+
+  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final NestedDocuments<N> value) {
+	    return new NamedProperty<N, PropertyValue>() {
+	      @Override
+	      public NestedDocuments<N> getValue() {
+	        return value;
+	      }	        
+
+	      @Override
+	      public N getName() {
+	        return name;
+	      }
+	    };
+	  }
+
+  
+  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final URI value) {
+	    return new NamedProperty<N, PropertyValue>() {
+	      @Override
+	      public Literal.UriLiteral getValue() {
+	        return new Literal.UriLiteral() {
+	          @Override
+	          public URI getValue() {
+	            return value;
+	          }
+	        };
+	      }
+
+	      @Override
+	      public N getName() {
+	        return name;
+	      }
+	    };
+	  }
+
+  public static NamespaceBinding NamespaceBinding(String namespaceUri, String prefix) {
+	  return new NamespaceBinding(namespaceUri, prefix);
+  }
+  
 
   public static QName QName(String localPart) {
     return new QName(localPart);

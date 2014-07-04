@@ -1,4 +1,4 @@
-package uk.ac.ncl.intbio.core.io.rdf;
+package uk.ac.ncl.intbio.core.datatree;
 
 import javax.xml.namespace.QName;
 
