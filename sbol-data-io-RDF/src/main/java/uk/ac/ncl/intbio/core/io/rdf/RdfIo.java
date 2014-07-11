@@ -1,11 +1,16 @@
 package uk.ac.ncl.intbio.core.io.rdf;
 
+import java.io.Reader;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import javax.xml.stream.events.XMLEvent;
 
 import uk.ac.ncl.intbio.core.datatree.*;
 import uk.ac.ncl.intbio.core.io.CoreIoException;
+import uk.ac.ncl.intbio.core.io.IoReader;
 import uk.ac.ncl.intbio.core.io.IoWriter;
 import static uk.ac.ncl.intbio.core.io.rdf.RdfTerms.*;
 
@@ -23,7 +28,7 @@ public class RdfIo{
 
 					writeStartElement(RDF);
 					setPrefix(rdf);
-					writeNamespace(rdf);
+					writeNamespace(rdf);//TODO: Don't do if rdf is already in the list
 					
 					for(NamespaceBinding nb : document.getNamespaceBindings()) {
 						setPrefix(nb);
@@ -140,6 +145,48 @@ public class RdfIo{
                   attrValue);
         }
       
+		};
+	}
+
+	public IoReader<QName> createIoReader(final XMLStreamReader xmlReader) throws XMLStreamException
+	{
+		return new IoReader<QName>() {
+			
+			@Override
+			public DocumentRoot<QName> read () throws XMLStreamException
+			{
+				while (xmlReader.hasNext())
+				{
+					int eventType = xmlReader.next();
+					switch (eventType) {
+					case  XMLEvent.START_ELEMENT:
+						System.out.println(xmlReader.getName());
+						Datatree.NamespaceBindings bindings = readBindings();
+						Datatree.TopLevelDocuments<QName> topLevelDocuments= readTopLevelDocuments();
+						
+						return Datatree.DocumentRoot(bindings, topLevelDocuments, Datatree.<QName>LiteralProperties());
+						//break;
+					/*case XMLEvent.NAMESPACE:
+						System.out.println(xmlReader.getName());*/
+					}
+				}
+				return null;
+			}
+			
+			private Datatree.NamespaceBindings readBindings() throws XMLStreamException {
+				NamespaceBinding[] bindings = new NamespaceBinding[xmlReader.getNamespaceCount()];
+				
+				for(int i = 0; i < xmlReader.getNamespaceCount(); i++) {
+					bindings[i] = Datatree.NamespaceBinding(xmlReader.getNamespaceURI(i), xmlReader.getNamespacePrefix(i));
+				}
+				return Datatree.NamespaceBindings(bindings);
+			}
+			
+			private Datatree.TopLevelDocuments<QName> readTopLevelDocuments() throws XMLStreamException {
+				
+				return Datatree.<QName>TopLevelDocuments();
+			}
+			
 		};
 	}
 }

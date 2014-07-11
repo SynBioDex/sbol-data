@@ -1,8 +1,18 @@
 package uk.ac.ncl.intbio.examples;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URI;
 
+import javax.sql.rowset.spi.XmlReader;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 
 import javanet.staxutils.IndentingXMLStreamWriter;
@@ -35,14 +45,42 @@ public class WriteRdfFromDatatree
 
   public static void main( String[] args ) throws Exception
   {
-    XMLStreamWriter xmlWriter = new IndentingXMLStreamWriter(
-            XMLOutputFactory.newInstance().createXMLStreamWriter(System.out));
-    RdfIo rdfIo = new RdfIo();
-    //rdfIo.createIoWriter(xmlWriter).write(makeDocument());
-    rdfIo.createIoWriter(xmlWriter).write(makeSBOL2Document());    
-    xmlWriter.flush();
-    xmlWriter.close();
+	  DocumentRoot originalDocument = makeSBOL2Document();
+	  write(new OutputStreamWriter(System.out), originalDocument);
+	  StringWriter stringWriter=new StringWriter();
+	  write (stringWriter, originalDocument);
+	  
+	  System.out.println("------------------------------------------------------");
+	  
+	  String output=stringWriter.getBuffer().toString();
+	  stringWriter.close();
+	  
+	  System.out.print(output);
+	  
+	  DocumentRoot<QName> document= read(new StringReader(output));
+	  
+	  System.out.print(document);
+	  write(new OutputStreamWriter(System.out), document);
+	  
+	  
   }
+  
+	private static void write(Writer stream, DocumentRoot<QName> document) throws Exception
+	{
+		XMLStreamWriter xmlWriter = new IndentingXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(stream));
+		RdfIo rdfIo = new RdfIo();
+		// rdfIo.createIoWriter(xmlWriter).write(makeDocument());
+		rdfIo.createIoWriter(xmlWriter).write(document);
+		xmlWriter.flush();
+		xmlWriter.close();
+	}
+	
+	private static DocumentRoot<QName> read(Reader reader) throws Exception
+	{
+		XMLStreamReader xmlReader=XMLInputFactory.newInstance().createXMLStreamReader(reader);
+		RdfIo rdfIo = new RdfIo();
+		return rdfIo.createIoReader(xmlReader).read();		
+	}
 
 	public static DocumentRoot<QName> makeDocument()
 	{
@@ -101,75 +139,75 @@ public class WriteRdfFromDatatree
 	public static DocumentRoot<QName> makeSBOL2Document()
 	{
 		NestedDocument<QName> instantiationLacI=NestedDocument(
-				Sbol2Terms.componentInstantiation, 
+				Sbol2Terms.instantiation.componentInstantiation, 
 				sbolExample.withLocalPart("module_LacI_inverter/LacI_instantiation"), 
 				NamedProperties(
-						NamedProperty(Sbol2Terms.name, "LacI")					
+						NamedProperty(Sbol2Terms.documented.name, "LacI")					
 				));
 		
 		NestedDocument<QName> instantiationIPTG=NestedDocument(
-				Sbol2Terms.componentInstantiation, 
+				Sbol2Terms.instantiation.componentInstantiation, 
 				sbolExample.withLocalPart("module_LacI_inverter/IPTG"), 
 				NamedProperties(
-						NamedProperty(Sbol2Terms.name, "IPTG")					
+						NamedProperty(Sbol2Terms.documented.name, "IPTG")					
 				));
 		
 		NestedDocument<QName> instantiationIPTGLacI=NestedDocument(
-				Sbol2Terms.componentInstantiation, 
+				Sbol2Terms.instantiation.componentInstantiation, 
 				sbolExample.withLocalPart("module_LacI_inverter/IPTGLacI_instantiation"), 
 				NamedProperties(
-						NamedProperty(Sbol2Terms.name, "IPTG LacI complex")					
+						NamedProperty(Sbol2Terms.documented.name, "IPTG LacI complex")					
 				));
 		NestedDocument<QName> instantiationpLac=NestedDocument(
-				Sbol2Terms.componentInstantiation, 
+				Sbol2Terms.instantiation.componentInstantiation, 
 				sbolExample.withLocalPart("module_LacI_inverter/pLac_instantiation"), 
 				NamedProperties(
-						NamedProperty(Sbol2Terms.name, "pLac promoter")					
+						NamedProperty(Sbol2Terms.documented.name, "pLac promoter")					
 				));
 		NestedDocument<QName> instantiationcTetR=NestedDocument(
-				Sbol2Terms.componentInstantiation, 
+				Sbol2Terms.instantiation.componentInstantiation, 
 				sbolExample.withLocalPart("module_LacI_inverter/cTetR_instantiation"), 
 				NamedProperties(
-						NamedProperty(Sbol2Terms.name, "cTetR")					
+						NamedProperty(Sbol2Terms.documented.name, "cTetR")					
 				));
 		NestedDocument<QName> instantiationTetR=NestedDocument(
-				Sbol2Terms.componentInstantiation, 
+				Sbol2Terms.instantiation.componentInstantiation, 
 				sbolExample.withLocalPart("module_LacI_inverter/TetR_instantiation"), 
 				NamedProperties(
-						NamedProperty(Sbol2Terms.name, "TetR")					
+						NamedProperty(Sbol2Terms.documented.name, "TetR")					
 				));
 		
 		
 		NestedDocument<QName> interactionIPTGBinding=NestedDocument(
-				Sbol2Terms.interaction, 
+				Sbol2Terms.module.interaction, 
 				sbolExample.withLocalPart("module_LacI_inverter/interaction/IPTG_binding"), 
 				NamedProperties(
-						NamedProperty(Sbol2Terms.name, "IPTG Binding"),
+						NamedProperty(Sbol2Terms.documented.name, "IPTG Binding"),
 						NamedProperty(RdfTerms.rdfType, URI.create("http://purl.obolibrary.org/obo/non_covalent_binding")),
-						NamedProperty(Sbol2Terms.hasParticipation,
+						NamedProperty(Sbol2Terms.module.hasParticipation,
 								NestedDocuments(
 										NestedDocument(
-												Sbol2Terms.participation,
+												Sbol2Terms.module.participation,
 												partsRegistry.withLocalPart("module_LacI_inverter/interaction/IPTG_Binding/LacI_participation"),
 												NamedProperties(
-														NamedProperty(Sbol2Terms.role,URI.create("http://purl.obolibrary.org/obo/reactant")),
-														NamedProperty(Sbol2Terms.participant, instantiationLacI.getIdentity())
+														NamedProperty(Sbol2Terms.module.role,URI.create("http://purl.obolibrary.org/obo/reactant")),
+														NamedProperty(Sbol2Terms.module.participant, instantiationLacI.getIdentity())
 												)												
 										),
 										NestedDocument(
-												Sbol2Terms.participation,
+												Sbol2Terms.module.participation,
 												partsRegistry.withLocalPart("module_LacI_inverter/interaction/IPTG_Binding/IPTGLacI_participation"),
 												NamedProperties(
-														NamedProperty(Sbol2Terms.role,URI.create("http://purl.obolibrary.org/obo/product")),
-														NamedProperty(Sbol2Terms.participant, instantiationIPTGLacI.getIdentity())
+														NamedProperty(Sbol2Terms.module.role,URI.create("http://purl.obolibrary.org/obo/product")),
+														NamedProperty(Sbol2Terms.module.participant, instantiationIPTGLacI.getIdentity())
 												)												
 										),
 										NestedDocument(
-												Sbol2Terms.participation,
+												Sbol2Terms.module.participation,
 												partsRegistry.withLocalPart("module_LacI_inverter/interaction/IPTG_Binding/IPTG_participation"),
 												NamedProperties(
-														NamedProperty(Sbol2Terms.role,URI.create("http://purl.obolibrary.org/obo/reactant")),
-														NamedProperty(Sbol2Terms.participant, instantiationIPTG.getIdentity())
+														NamedProperty(Sbol2Terms.module.role,URI.create("http://purl.obolibrary.org/obo/reactant")),
+														NamedProperty(Sbol2Terms.module.participant, instantiationIPTG.getIdentity())
 												)												
 										)										
 								)
@@ -179,27 +217,27 @@ public class WriteRdfFromDatatree
 		
 		
 		NestedDocument<QName> interactionLacIRepression=NestedDocument(
-				Sbol2Terms.interaction, 
+				Sbol2Terms.module.interaction, 
 				sbolExample.withLocalPart("module_LacI_inverter/interaction/LacI_repression"), 
 				NamedProperties(
-						NamedProperty(Sbol2Terms.name, "LacI Repression"),
+						NamedProperty(Sbol2Terms.documented.name, "LacI Repression"),
 						NamedProperty(RdfTerms.rdfType, URI.create("http://purl.obolibrary.org/obo/repression")),
-						NamedProperty(Sbol2Terms.hasParticipation,
+						NamedProperty(Sbol2Terms.module.hasParticipation,
 								NestedDocuments(
 										NestedDocument(
-												Sbol2Terms.participation,
+												Sbol2Terms.module.participation,
 												partsRegistry.withLocalPart("module_LacI_inverter/interaction/LacI_repression/LacI"),
 												NamedProperties(
-														NamedProperty(Sbol2Terms.role,URI.create("http://purl.obolibrary.org/obo/repressor")),
-														NamedProperty(Sbol2Terms.participant, instantiationLacI.getIdentity())
+														NamedProperty(Sbol2Terms.module.role,URI.create("http://purl.obolibrary.org/obo/repressor")),
+														NamedProperty(Sbol2Terms.module.participant, instantiationLacI.getIdentity())
 												)												
 										),
 										NestedDocument(
-												Sbol2Terms.participation,
+												Sbol2Terms.module.participation,
 												partsRegistry.withLocalPart("module_LacI_inverter/interaction/LacI_repression/pLac"),
 												NamedProperties(
-														NamedProperty(Sbol2Terms.role,URI.create("http://purl.obolibrary.org/obo/repressed")),
-														NamedProperty(Sbol2Terms.participant, instantiationpLac.getIdentity())
+														NamedProperty(Sbol2Terms.module.role,URI.create("http://purl.obolibrary.org/obo/repressed")),
+														NamedProperty(Sbol2Terms.module.participant, instantiationpLac.getIdentity())
 												)												
 										)										
 								)
@@ -208,35 +246,35 @@ public class WriteRdfFromDatatree
 		
 		
 		NestedDocument<QName> interactionTetRTranscriptionTranslation=NestedDocument(
-				Sbol2Terms.interaction, 
+				Sbol2Terms.module.interaction, 
 				sbolExample.withLocalPart("module_LacI_inverter/interaction/TetR_transcription_translation"), 
 				NamedProperties(
-						NamedProperty(Sbol2Terms.name, "TetR Transcription Translation"),
+						NamedProperty(Sbol2Terms.documented.name, "TetR Transcription Translation"),
 						NamedProperty(RdfTerms.rdfType, URI.create("http://purl.obolibrary.org/obo/genetic_production")),
-						NamedProperty(Sbol2Terms.hasParticipation,
+						NamedProperty(Sbol2Terms.module.hasParticipation,
 								NestedDocuments(
 										NestedDocument(
-												Sbol2Terms.participation,
+												Sbol2Terms.module.participation,
 												partsRegistry.withLocalPart("module_LacI_inverter/interaction/TetR_transcription_translation/TetR_participation"),
 												NamedProperties(
-														NamedProperty(Sbol2Terms.role,URI.create("http://purl.obolibrary.org/obo/product")),
-														NamedProperty(Sbol2Terms.participant, instantiationTetR.getIdentity())
+														NamedProperty(Sbol2Terms.module.role,URI.create("http://purl.obolibrary.org/obo/product")),
+														NamedProperty(Sbol2Terms.module.participant, instantiationTetR.getIdentity())
 												)												
 										),
 										NestedDocument(
-												Sbol2Terms.participation,
+												Sbol2Terms.module.participation,
 												partsRegistry.withLocalPart("module_LacI_inverter/interaction/TetR_transcription_translation/cTetR_participation"),
 												NamedProperties(
-														NamedProperty(Sbol2Terms.role,URI.create("http://purl.obolibrary.org/obo/transcribed")),
-														NamedProperty(Sbol2Terms.participant, instantiationcTetR.getIdentity())
+														NamedProperty(Sbol2Terms.module.role,URI.create("http://purl.obolibrary.org/obo/transcribed")),
+														NamedProperty(Sbol2Terms.module.participant, instantiationcTetR.getIdentity())
 												)												
 										),
 										NestedDocument(
-												Sbol2Terms.participation,
+												Sbol2Terms.module.participation,
 												partsRegistry.withLocalPart("module_LacI_inverter/interaction/TetR_transcription_translation/pLac_participation"),
 												NamedProperties(
-														NamedProperty(Sbol2Terms.role,URI.create("http://purl.obolibrary.org/obo/modifier")),
-														NamedProperty(Sbol2Terms.participant, instantiationpLac.getIdentity())
+														NamedProperty(Sbol2Terms.module.role,URI.create("http://purl.obolibrary.org/obo/modifier")),
+														NamedProperty(Sbol2Terms.module.participant, instantiationpLac.getIdentity())
 												)												
 										)										
 								)
@@ -246,27 +284,27 @@ public class WriteRdfFromDatatree
 		
 	
 		TopLevelDocument<QName> modelLacIInverter=TopLevelDocument(
-				Sbol2Terms.model,
+				Sbol2Terms.model.model,
 				sbolExample.withLocalPart("model/LacI_inverter"),
 				NamedProperties(
-						NamedProperty(Sbol2Terms.name, "LacI Inverter Model"),
-						NamedProperty(Sbol2Terms.source,URI.create("http://www.async.ece.utah.edu/LacI_Inverter.xml")),
-						NamedProperty(Sbol2Terms.language,"SBML"),
-						NamedProperty(Sbol2Terms.framework,"ODE"),
-						NamedProperty(Sbol2Terms.modelRole,"simulation")
+						NamedProperty(Sbol2Terms.documented.name, "LacI Inverter Model"),
+						NamedProperty(Sbol2Terms.model.source,URI.create("http://www.async.ece.utah.edu/LacI_Inverter.xml")),
+						NamedProperty(Sbol2Terms.model.language,"SBML"),
+						NamedProperty(Sbol2Terms.model.framework,"ODE"),
+						NamedProperty(Sbol2Terms.model.role,"simulation")
 						
 						
 				));
 				
 		TopLevelDocument<QName> moduleLacIInverter=TopLevelDocument(
-				Sbol2Terms.module,
+				Sbol2Terms.module.module,
 				sbolExample.withLocalPart("module/LacI_inverter"),
 				NamedProperties(
-						NamedProperty(Sbol2Terms.name, "LacI Inverter"),
-						NamedProperty(Sbol2Terms.hasInteraction,NestedDocuments(interactionIPTGBinding,interactionLacIRepression,interactionTetRTranscriptionTranslation)),
-						NamedProperty(Sbol2Terms.hasComponentInstantiation,
+						NamedProperty(Sbol2Terms.documented.name, "LacI Inverter"),
+						NamedProperty(Sbol2Terms.module.hasInteraction,NestedDocuments(interactionIPTGBinding,interactionLacIRepression,interactionTetRTranscriptionTranslation)),
+						NamedProperty(Sbol2Terms.instantiation.hasComponentInstantiation,
 								NestedDocuments(instantiationLacI,instantiationIPTG,instantiationIPTGLacI,instantiationpLac,instantiationcTetR,instantiationTetR)),
-						NamedProperty(Sbol2Terms.hasModel,modelLacIInverter.getIdentity())		
+						NamedProperty(Sbol2Terms.module.hasModel,modelLacIInverter.getIdentity())		
 						
 				));
 		
