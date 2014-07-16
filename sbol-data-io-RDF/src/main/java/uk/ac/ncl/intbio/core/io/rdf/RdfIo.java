@@ -1,6 +1,9 @@
 package uk.ac.ncl.intbio.core.io.rdf;
 
 import java.io.Reader;
+import java.net.URI;
+import java.util.List;
+import java.util.Stack;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -9,6 +12,7 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.events.XMLEvent;
 
 import uk.ac.ncl.intbio.core.datatree.*;
+import uk.ac.ncl.intbio.core.datatree.Datatree.NamedProperties;
 import uk.ac.ncl.intbio.core.io.CoreIoException;
 import uk.ac.ncl.intbio.core.io.IoReader;
 import uk.ac.ncl.intbio.core.io.IoWriter;
@@ -160,7 +164,7 @@ public class RdfIo{
 					int eventType = xmlReader.next();
 					switch (eventType) {
 					case  XMLEvent.START_ELEMENT:
-						System.out.println(xmlReader.getName());
+						System.out.println("start:----------" + xmlReader.getName());
 						Datatree.NamespaceBindings bindings = readBindings();
 						Datatree.TopLevelDocuments<QName> topLevelDocuments= readTopLevelDocuments();
 						
@@ -182,8 +186,105 @@ public class RdfIo{
 				return Datatree.NamespaceBindings(bindings);
 			}
 			
+			private Stack<Object> documentStack=new Stack<Object>() ;
+			
+			private StringBuilder currentText;
 			private Datatree.TopLevelDocuments<QName> readTopLevelDocuments() throws XMLStreamException {
-				
+				while (xmlReader.hasNext())
+				{
+
+					int eventType = xmlReader.next();
+					switch (eventType) {
+					case  XMLEvent.START_ELEMENT:
+						currentText = new StringBuilder(256);
+						QName elementURI=new QName(xmlReader.getNamespaceURI() + xmlReader.getLocalName());						
+
+						QName identity=null;
+						URI resourceURI=null;
+						
+						  int attributes = xmlReader.getAttributeCount();
+		                  for(int i=0;i<attributes;++i) {
+		                       
+		                    	if ("about".equals(xmlReader.getAttributeLocalName(i)) && "rdf".equals(xmlReader.getAttributePrefix(i)))
+		                    	{
+		                    		identity= new QName(xmlReader.getAttributeValue(i));
+		                    		//System.out.println("Attribute:----------" + xmlReader.getAttributeValue(i));		                    		
+		                    	}
+		                    	if ("resource".equals(xmlReader.getAttributeLocalName(i)) && "rdf".equals(xmlReader.getAttributePrefix(i)))
+		                    	{
+		                    		resourceURI= URI.create(xmlReader.getAttributeValue(i));
+		                    		//System.out.println("Attribute:----------" + xmlReader.getAttributeValue(i));		                    		
+		                    	}
+		                    }
+		                   
+		                    
+		                  if (identity!=null)
+		                  {
+		                	  Datatree.NamespaceBindings bindings = readBindings();
+		                	  if (documentStack.size()==0)
+								{
+									TopLevelDocument<QName> document=Datatree.TopLevelDocument(bindings,elementURI, identity, null);
+									documentStack.add(document);
+								}
+		                	  else
+		                	  {
+		                		  NestedDocument<QName> document=Datatree.NestedDocument(bindings,elementURI, identity, null);
+		                		  documentStack.add(document);
+		                	  }
+		                  }
+		                  else
+		                  {
+		                	  if (resourceURI!=null)
+		                	  {
+		                		  NamedProperty<QName, PropertyValue> property=Datatree.NamedProperty(elementURI, resourceURI);
+		                		  documentStack.add(property);
+		                	  }
+		                	  else
+		                	  {
+		                		  NamedProperty<QName, PropertyValue> property=Datatree.NamedProperty(elementURI, "");//TODO Make sure this is ok. The value type is not known yet!
+		                		  documentStack.add(property);
+		                	  }
+		                  }
+		                  
+		                    break;
+					case  XMLEvent.END_ELEMENT:
+						if (currentText!=null)
+						{
+							String literalValue=currentText.toString();
+							currentText=null;
+							NamedProperty<QName, PropertyValue> propertyInStack=(NamedProperty<QName, PropertyValue>)documentStack.pop();
+							
+							//TODO: Add a method to set the value
+							NamedProperty<QName, PropertyValue> currentProperty=Datatree.NamedProperty(propertyInStack.getName(), literalValue);
+							/* TODO Does not work at the moment:
+							Document<QName, PropertyValue> documentInStack=(Document<QName, PropertyValue>)documentStack.pop();
+							if (documentInStack instanceof TopLevelDocument)
+							{
+								//TODO Add a method to add a property to a document
+								TopLevelDocument<QName> tldocumentInStack=(TopLevelDocument<QName>) documentInStack;
+								// TODO: This line causes an exception: List<NamedProperty<QName, PropertyValue>> properties=tldocumentInStack.getProperties();
+								//TODO: Open properties.add(currentProperty);
+								
+								//TODO This line doen not work yet TopLevelDocument currentDocument=Datatree.TopLevelDocument(tldocumentInStack.getNamespaceBindings(), tldocumentInStack.getType(), tldocumentInStack.getIdentity(), properties);
+							}*/
+							
+							
+						}
+
+						//System.out.println("end:----------" + xmlReader.getName());
+						
+						break;
+					case XMLEvent.CHARACTERS:
+						String characters=xmlReader.getText();
+						if (currentText!=null)
+						{
+							currentText.append(characters);
+							//System.out.println("Characters:----------" + characters);
+						}
+						
+						break;
+					}
+				}
 				return Datatree.<QName>TopLevelDocuments();
 			}
 			
