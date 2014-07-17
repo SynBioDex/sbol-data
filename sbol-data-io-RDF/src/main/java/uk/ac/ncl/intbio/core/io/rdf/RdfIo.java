@@ -2,6 +2,8 @@ package uk.ac.ncl.intbio.core.io.rdf;
 
 import java.io.Reader;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -13,6 +15,8 @@ import javax.xml.stream.events.XMLEvent;
 
 import uk.ac.ncl.intbio.core.datatree.*;
 import uk.ac.ncl.intbio.core.datatree.Datatree.NamedProperties;
+import uk.ac.ncl.intbio.core.datatree.Datatree.NamespaceBindings;
+import uk.ac.ncl.intbio.core.datatree.Datatree.NestedDocuments;
 import uk.ac.ncl.intbio.core.io.CoreIoException;
 import uk.ac.ncl.intbio.core.io.IoReader;
 import uk.ac.ncl.intbio.core.io.IoWriter;
@@ -164,14 +168,9 @@ public class RdfIo{
 					int eventType = xmlReader.next();
 					switch (eventType) {
 					case  XMLEvent.START_ELEMENT:
-						System.out.println("start:----------" + xmlReader.getName());
 						Datatree.NamespaceBindings bindings = readBindings();
-						Datatree.TopLevelDocuments<QName> topLevelDocuments= readTopLevelDocuments();
-						
-						return Datatree.DocumentRoot(bindings, topLevelDocuments, Datatree.<QName>LiteralProperties());
-						//break;
-					/*case XMLEvent.NAMESPACE:
-						System.out.println(xmlReader.getName());*/
+						Datatree.TopLevelDocuments<QName> topLevelDocuments= readTopLevelDocuments();						
+						return Datatree.DocumentRoot(bindings, topLevelDocuments, Datatree.<QName>LiteralProperties());					
 					}
 				}
 				return null;
@@ -186,108 +185,245 @@ public class RdfIo{
 				return Datatree.NamespaceBindings(bindings);
 			}
 			
+			/**
+			 * Used to store documents and properties when reading XML in the readTopLevelDocuments method
+			 */
 			private Stack<Object> documentStack=new Stack<Object>() ;
 			
+			/**
+			 * Used as a buffer to read XML characters in the readTopLevelDocuments method
+			 */
 			private StringBuilder currentText;
-			private Datatree.TopLevelDocuments<QName> readTopLevelDocuments() throws XMLStreamException {
-				while (xmlReader.hasNext())
-				{
+			
+			/**
+			 * Used to store the TopLevelDocument objects in the readTopLevelDocuments method
+			 */
+			private List<TopLevelDocument<QName>> topLevelDocuments=null;
+
+			/**
+			 * Reads RDF document and returns TopLevelDocuments. Properties and
+			 * documents are stored in a Stack object and populated as more data
+			 * become available The stack object holds one TopLevelDocument at a
+			 * time. Once a TopLevelDocument is read it is added to the
+			 * topLevelDocuments collection. For triples within a
+			 * TopLevelDocument the following rules apply:<br/>
+			 * Starting tags:
+			 * <p>
+			 * <br/>
+			 * If a triple contains rdf:about attribute it is assumed that the
+			 * tag is the start of a NestedDocument. An empty Nested document is
+			 * added to the stack <br/>
+			 * If a triple contains rdf:resource, a NamedProperty with a URI
+			 * value is created and added to the stack <br/>
+			 * Otherwise a NamedProperty without a value is added to the stack
+			 * </p>
+			 * <br/>
+			 * End tags:
+			 * <p>
+			 * For each end tag, an object is taken from the stack. <br/>
+			 * If the object is a property The property is removed from the
+			 * stack The XML value (if the value exists) is used to set the
+			 * value of that property. The property is then added to the recent
+			 * document in the stack. This document can be a NestedDocument or a
+			 * TopLevelDocument <br/>
+			 * If the object is a NestedDocument, the document is removed from
+			 * the stack. The property identifying the document in this case is
+			 * the most recent object in the stack and it is also removed from
+			 * the stack. The NestedDocument is then added to the parent
+			 * document (it can be a another NestedDocument or a
+			 * TopLevelDocument using the property relationship. This parent
+			 * document is the most recent object after removing the property.<br/>
+			 * If the object is TopLevelDocument, the object is removed from the
+			 * stack and added to the topLevelDocuments collection
+			 * </p>
+			 * 
+			 * @return
+			 * @throws XMLStreamException
+			 */
+			private Datatree.TopLevelDocuments<QName> readTopLevelDocuments()
+					throws XMLStreamException {
+				topLevelDocuments = new ArrayList<TopLevelDocument<QName>>();
+				while (xmlReader.hasNext()) {
 
 					int eventType = xmlReader.next();
 					switch (eventType) {
-					case  XMLEvent.START_ELEMENT:
+					case XMLEvent.START_ELEMENT:
 						currentText = new StringBuilder(256);
-						QName elementURI=new QName(xmlReader.getNamespaceURI() + xmlReader.getLocalName());						
-
-						QName identity=null;
-						URI resourceURI=null;
-						
-						  int attributes = xmlReader.getAttributeCount();
-		                  for(int i=0;i<attributes;++i) {
-		                       
-		                    	if ("about".equals(xmlReader.getAttributeLocalName(i)) && "rdf".equals(xmlReader.getAttributePrefix(i)))
-		                    	{
-		                    		identity= new QName(xmlReader.getAttributeValue(i));
-		                    		//System.out.println("Attribute:----------" + xmlReader.getAttributeValue(i));		                    		
-		                    	}
-		                    	if ("resource".equals(xmlReader.getAttributeLocalName(i)) && "rdf".equals(xmlReader.getAttributePrefix(i)))
-		                    	{
-		                    		resourceURI= URI.create(xmlReader.getAttributeValue(i));
-		                    		//System.out.println("Attribute:----------" + xmlReader.getAttributeValue(i));		                    		
-		                    	}
-		                    }
-		                   
-		                    
-		                  if (identity!=null)
-		                  {
-		                	  Datatree.NamespaceBindings bindings = readBindings();
-		                	  if (documentStack.size()==0)
-								{
-									TopLevelDocument<QName> document=Datatree.TopLevelDocument(bindings,elementURI, identity, null);
-									documentStack.add(document);
-								}
-		                	  else
-		                	  {
-		                		  NestedDocument<QName> document=Datatree.NestedDocument(bindings,elementURI, identity, null);
-		                		  documentStack.add(document);
-		                	  }
-		                  }
-		                  else
-		                  {
-		                	  if (resourceURI!=null)
-		                	  {
-		                		  NamedProperty<QName, PropertyValue> property=Datatree.NamedProperty(elementURI, resourceURI);
-		                		  documentStack.add(property);
-		                	  }
-		                	  else
-		                	  {
-		                		  NamedProperty<QName, PropertyValue> property=Datatree.NamedProperty(elementURI, "");//TODO Make sure this is ok. The value type is not known yet!
-		                		  documentStack.add(property);
-		                	  }
-		                  }
-		                  
-		                    break;
-					case  XMLEvent.END_ELEMENT:
-						if (currentText!=null)
-						{
-							String literalValue=currentText.toString();
-							currentText=null;
-							NamedProperty<QName, PropertyValue> propertyInStack=(NamedProperty<QName, PropertyValue>)documentStack.pop();
-							
-							//TODO: Add a method to set the value
-							NamedProperty<QName, PropertyValue> currentProperty=Datatree.NamedProperty(propertyInStack.getName(), literalValue);
-							/* TODO Does not work at the moment:
-							Document<QName, PropertyValue> documentInStack=(Document<QName, PropertyValue>)documentStack.pop();
-							if (documentInStack instanceof TopLevelDocument)
-							{
-								//TODO Add a method to add a property to a document
-								TopLevelDocument<QName> tldocumentInStack=(TopLevelDocument<QName>) documentInStack;
-								// TODO: This line causes an exception: List<NamedProperty<QName, PropertyValue>> properties=tldocumentInStack.getProperties();
-								//TODO: Open properties.add(currentProperty);
-								
-								//TODO This line doen not work yet TopLevelDocument currentDocument=Datatree.TopLevelDocument(tldocumentInStack.getNamespaceBindings(), tldocumentInStack.getType(), tldocumentInStack.getIdentity(), properties);
-							}*/
-							
-							
+						QName elementURI = Datatree.QName(xmlReader.getNamespaceURI(), xmlReader.getLocalName(), xmlReader.getPrefix());
+						addToStack(elementURI);
+						break;
+					case XMLEvent.END_ELEMENT:
+						String literalValue = null;
+						if (currentText != null) {
+							literalValue = currentText.toString();
+							currentText = null;
 						}
-
-						//System.out.println("end:----------" + xmlReader.getName());
-						
+						updateDocumentInStack(literalValue);
 						break;
 					case XMLEvent.CHARACTERS:
-						String characters=xmlReader.getText();
-						if (currentText!=null)
-						{
+						String characters = xmlReader.getText();
+						if (currentText != null) {
 							currentText.append(characters);
-							//System.out.println("Characters:----------" + characters);
 						}
-						
 						break;
 					}
 				}
-				return Datatree.<QName>TopLevelDocuments();
+				Datatree.TopLevelDocuments<QName> documents = Datatree
+						.TopLevelDocuments(topLevelDocuments.toArray(new TopLevelDocument[topLevelDocuments.size()]));
+				return documents;
+				// return Datatree.<QName> TopLevelDocuments();
 			}
 			
+			private void addToStack(QName elementURI) throws XMLStreamException
+			{
+				QName identity = null;
+				URI resourceURI = null;
+
+				int attributes = xmlReader.getAttributeCount();
+				for (int i = 0; i < attributes; ++i)
+				{
+					if ("about".equals(xmlReader.getAttributeLocalName(i)) && "rdf".equals(xmlReader.getAttributePrefix(i)))
+					{
+						identity = new QName(xmlReader.getAttributeValue(i));
+					}
+					if ("resource".equals(xmlReader.getAttributeLocalName(i)) && "rdf".equals(xmlReader.getAttributePrefix(i)))
+					{
+						resourceURI = URI.create(xmlReader.getAttributeValue(i));
+					}
+				}
+
+				if (identity != null)
+				{
+					Datatree.NamespaceBindings bindings = readBindings();
+					IdentifiableDocument<QName, PropertyValue> document = null;
+					if (documentStack.isEmpty())
+					{
+						document = Datatree.TopLevelDocument(bindings, elementURI, identity, null);
+					}
+					else
+					{
+						document = Datatree.NestedDocument(bindings, elementURI, identity, null);
+					}
+					documentStack.add(document);
+				}
+				else
+				{
+					NamedProperty<QName, PropertyValue> property = null;
+					if (resourceURI != null)
+					{
+						property = Datatree.NamedProperty(elementURI, resourceURI);
+					}
+					else
+					{
+						// TODO Make sure this is ok. The value type is not known yet!
+						property = Datatree.NamedProperty(elementURI, "");
+					}
+					documentStack.add(property);
+				}
+			}
+
+			
+			private void updateDocumentInStack(String literalValue) throws XMLStreamException
+			{
+				// Get the object in the stack
+				if (!documentStack.isEmpty())
+				{
+					Object stackObject = documentStack.pop();
+
+					if (stackObject instanceof NamedProperty)
+					{
+						NamedProperty<QName, PropertyValue> property = (NamedProperty<QName, PropertyValue>) stackObject;
+						// Set its property value
+						if (literalValue != null && literalValue.length() > 0)
+						{
+							property = Datatree.NamedProperty(property.getName(), literalValue);
+						}
+						updateDocumentInStackWithProperty(property);
+					}
+					else if (stackObject instanceof NestedDocument)
+					{
+						NestedDocument<QName> document = (NestedDocument<QName>) stackObject;
+
+						// Get the property for the nested document
+						NamedProperty<QName, PropertyValue> property = (NamedProperty<QName, PropertyValue>) documentStack
+								.pop();
+						property = Datatree.NamedProperty(property.getName(), Datatree.NestedDocuments(document));
+						updateDocumentInStackWithProperty(property);
+
+						// Skip the ending of the property tag. The nested
+						// document is attached to the parent using the property
+						// already.
+						while (xmlReader.hasNext())
+						{
+							int eventType = xmlReader.next();
+
+							if (eventType == XMLEvent.END_ELEMENT)
+							{
+								String elementURI = xmlReader.getNamespaceURI() + xmlReader.getLocalName();
+								if (elementURI.equals(property.getName().getNamespaceURI() + property.getName().getLocalPart()))
+								{
+									break;
+								}
+							}
+						}
+					}
+					else if (stackObject instanceof TopLevelDocument)
+					{
+						topLevelDocuments.add((TopLevelDocument<QName>) stackObject);
+					}
+				}
+			}
+			
+			private void updateDocumentInStackWithProperty(NamedProperty<QName, PropertyValue> property)
+			{
+				//Add it to the document in the stack
+				IdentifiableDocument<QName, PropertyValue> documentInStack=(IdentifiableDocument<QName, PropertyValue>)documentStack.pop();
+				documentInStack=addProperty(documentInStack, property);
+				
+				//Put the document back to the stack
+				documentStack.add(documentInStack);
+			}
+			
+			private IdentifiableDocument<QName, PropertyValue> addProperty(
+					IdentifiableDocument<QName, PropertyValue> document, NamedProperty<QName, PropertyValue> property)
+			{
+
+				List<NamedProperty<QName, PropertyValue>> properties = new ArrayList<NamedProperty<QName, PropertyValue>>();
+				if (document.getProperties() == null || document.getProperties().size() == 0)
+				{
+					properties = Datatree.NamedProperties(property).getProperties();
+				}
+				else
+				{
+					properties.addAll(document.getProperties());
+					// TODO if the Property value is a NestedDocument then add
+					// the property using the same property key, still works without this though!
+					properties.add((NamedProperty<QName, PropertyValue>) property);
+				}
+				NamedProperty<QName, PropertyValue>[] propertyArray = properties.toArray(new NamedProperty[properties.size()]);
+				NamedProperties<QName, PropertyValue> namedProperties = Datatree.NamedProperties(propertyArray);
+				NamespaceBindings bindings = Datatree.NamespaceBindings(
+						(NamespaceBinding[]) document.getNamespaceBindings().toArray());
+				
+				if (document instanceof TopLevelDocument)
+				{
+					document = Datatree.TopLevelDocument(bindings, 
+							document.getType(), 
+							document.getIdentity(),
+							namedProperties);
+				}
+				else
+				{
+					document = Datatree.NestedDocument(
+							bindings, 
+							document.getType(), 
+							document.getIdentity(),
+							namedProperties);
+				}
+
+				return document;
+			}
+
 		};
 	}
 }

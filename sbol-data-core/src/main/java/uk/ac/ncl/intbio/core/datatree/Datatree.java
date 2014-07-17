@@ -63,7 +63,14 @@ public final class Datatree
 
       @Override
       public List<NamedProperty<N, PropertyValue>> getProperties() {
-        return properties.getProperties();
+    	if (properties!=null)
+        {
+        	return properties.getProperties();	
+        }
+        else
+        {
+        	return Collections.<NamedProperty<N, PropertyValue>>emptyList();
+        }
       }
 
 	  @Override
@@ -112,7 +119,14 @@ public final class Datatree
 			@Override
 			public List<NamedProperty<N, PropertyValue>> getProperties()
 			{
-				return properties.getProperties();
+				if (properties!=null)
+		        {
+		        	return properties.getProperties();	
+		        }
+		        else
+		        {
+		        	return Collections.<NamedProperty<N, PropertyValue>>emptyList();
+		        }
 			}
 
 			@Override
