@@ -19,11 +19,15 @@ public final class Datatree
   }
 
   @SafeVarargs
-  public static <N> TopLevelDocuments<N> TopLevelDocuments(final TopLevelDocument<N> ... documents) {
+  public static <N> TopLevelDocuments<N> TopLevelDocuments(TopLevelDocument<N> ... documents) {
+    return TopLevelDocuments(Arrays.asList(documents));
+  }
+
+  public static <N> TopLevelDocuments<N> TopLevelDocuments(final List<TopLevelDocument<N>> documents) {
     return new TopLevelDocuments<N>() {
       @Override
       public List<TopLevelDocument<N>> getDocuments() {
-        return Arrays.asList(documents);
+        return documents;
       }
     };
   }
@@ -37,13 +41,18 @@ public final class Datatree
   public static interface NamespaceBindings {
 	  public List<NamespaceBinding> getBindings();
   }
-  
+
+  public static NamespaceBindings NamespaceBindings(final List<NamespaceBinding> bindings) {
+    return new NamespaceBindings() {
+      @Override
+      public List<NamespaceBinding> getBindings() {
+        return bindings;
+      }
+    };
+  }
+
   public static NamespaceBindings NamespaceBindings(final NamespaceBinding ...bindings) {
-	  return new NamespaceBindings() {
-	    public List<NamespaceBinding> getBindings() {
-		  return Arrays.asList(bindings);
-	    }
-	  };
+	  return NamespaceBindings(Arrays.asList(bindings));
   }
 
   public static <N> TopLevelDocument<N> TopLevelDocument(final NamespaceBindings namespaceBindings,
@@ -88,10 +97,14 @@ public final class Datatree
   
   @SafeVarargs
   public static <N> NestedDocuments<N> NestedDocuments(final NestedDocument<N> ... documents) {
+    return NestedDocuments(Arrays.asList(documents));
+  }
+
+  public static <N> NestedDocuments<N> NestedDocuments(final List<NestedDocument<N>> documents) {
     return new NestedDocuments<N>() {
       @Override
       public List<NestedDocument<N>> getDocuments() {
-        return Arrays.asList(documents);
+        return documents;
       }
     };
   }
@@ -144,22 +157,30 @@ public final class Datatree
 
   @SafeVarargs
   public static <N> NamedProperties<N, PropertyValue> NamedProperties(final NamedProperty<N, PropertyValue> ... properties) {
+    return NamedProperties(Arrays.asList(properties));
+  }
+
+  public static <N> NamedProperties<N, PropertyValue> NamedProperties(final List<NamedProperty<N, PropertyValue>> properties) {
     return new NamedProperties<N, PropertyValue>() {
       @Override
       public List<NamedProperty<N, PropertyValue>> getProperties() {
-        return Arrays.asList(properties);
+        return properties;
+      }
+    };
+  }
+
+  public static <N> NamedProperties<N, Literal> LiteralProperties(final List<NamedProperty<N, Literal>> properties) {
+    return new NamedProperties<N, Literal>() {
+      @Override
+      public List<NamedProperty<N, Literal>> getProperties() {
+        return properties;
       }
     };
   }
 
   @SafeVarargs
   public static <N> NamedProperties<N, Literal> LiteralProperties(final NamedProperty<N, Literal> ... properties) {
-    return new NamedProperties<N, Literal>() {
-      @Override
-      public List<NamedProperty<N, Literal>> getProperties() {
-        return Arrays.asList(properties);
-      }
-    };
+    return LiteralProperties(Arrays.asList(properties));
   }
 
   public static <N> DocumentRoot<N> DocumentRoot(final TopLevelDocuments<N> documents,
@@ -189,16 +210,11 @@ public final class Datatree
     };
   }
 
-  public static <N> NamedProperty<N, Literal> NamedLiteralProperty(final N name, final String value) {
+  public static <N> NamedProperty<N, Literal> NamedLiteralProperty(final N name, final Literal value) {
     return new NamedProperty<N, Literal>() {
       @Override
-      public Literal.StringLiteral getValue() {
-        return new Literal.StringLiteral() {
-          @Override
-          public String getValue() {
-            return value;
-          }
-        };
+      public Literal getValue() {
+        return value;
       }
 
       @Override
@@ -206,67 +222,59 @@ public final class Datatree
         return name;
       }
     };
+  }
+
+  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final PropertyValue value) {
+    return new NamedProperty<N, PropertyValue>() {
+      @Override
+      public PropertyValue getValue() {
+        return value;
+      }
+
+      @Override
+      public N getName() {
+        return name;
+      }
+    };
+  }
+
+  public static <N> NamedProperty<N, Literal> NamedLiteralProperty(final N name, final String value) {
+    return NamedLiteralProperty(name, new Literal.StringLiteral() {
+      @Override
+      public String getValue() {
+        return value;
+      }
+    });
   }
 
   public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final String value) {
-    return new NamedProperty<N, PropertyValue>() {
+    return NamedProperty(name, new Literal.StringLiteral() {
       @Override
-      public Literal.StringLiteral getValue() {
-        return new Literal.StringLiteral() {
-          @Override
-          public String getValue() {
-            return value;
-          }
-        };
+      public String getValue() {
+        return value;
       }
+    });
+  }
 
+  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final int value) {
+    return NamedProperty(name, new Literal.IntegerLiteral() {
       @Override
-      public N getName() {
-        return name;
+      public Integer getValue() {
+        return value;
       }
-    };
+    });
+  }
+
+  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final QName value) {
+    return NamedProperty(name, new Literal.QNameLiteral()
+    {
+      @Override
+      public QName getValue() {
+        return value;
+      }
+    });
   }
   
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final int value) {
-	    return new NamedProperty<N, PropertyValue>() {
-	      @Override
-	      public Literal.IntegerLiteral getValue() {
-	        return new Literal.IntegerLiteral() {
-	          @Override
-	          public Integer getValue() {
-	            return value;
-	          }
-	        };
-	      }
-
-	      @Override
-	      public N getName() {
-	        return name;
-	      }
-	    };
-	  }
-  
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final QName value) {
-	    return new NamedProperty<N, PropertyValue>() {
-	      @Override
-	      public Literal.QNameLiteral getValue() {
-	        return new Literal.QNameLiteral()
-			{							
-	          @Override
-	          public QName getValue() {
-	            return value;
-	          }
-	        };
-	      }
-
-	      @Override
-	      public N getName() {
-	        return name;
-	      }
-	    };
-	  }
-  
-
   public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final NestedDocuments<N> value) {
 	    return new NamedProperty<N, PropertyValue>() {
 	      @Override
@@ -281,25 +289,15 @@ public final class Datatree
 	    };
 	  }
 
-  
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final URI value) {
-	    return new NamedProperty<N, PropertyValue>() {
-	      @Override
-	      public Literal.UriLiteral getValue() {
-	        return new Literal.UriLiteral() {
-	          @Override
-	          public URI getValue() {
-	            return value;
-	          }
-	        };
-	      }
 
-	      @Override
-	      public N getName() {
-	        return name;
-	      }
-	    };
-	  }
+  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final URI value) {
+    return NamedProperty(name, new Literal.UriLiteral() {
+      @Override
+      public URI getValue() {
+        return value;
+      }
+    });
+  }
 
   public static NamespaceBinding NamespaceBinding(String namespaceUri, String prefix) {
 	  return new NamespaceBinding(namespaceUri, prefix);
