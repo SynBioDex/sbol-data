@@ -1,9 +1,7 @@
 package uk.ac.ncl.intbio.core.io.rdf;
 
-import java.io.Reader;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -16,7 +14,6 @@ import javax.xml.stream.events.XMLEvent;
 import uk.ac.ncl.intbio.core.datatree.*;
 import uk.ac.ncl.intbio.core.datatree.Datatree.NamedProperties;
 import uk.ac.ncl.intbio.core.datatree.Datatree.NamespaceBindings;
-import uk.ac.ncl.intbio.core.datatree.Datatree.NestedDocuments;
 import uk.ac.ncl.intbio.core.io.CoreIoException;
 import uk.ac.ncl.intbio.core.io.IoReader;
 import uk.ac.ncl.intbio.core.io.IoWriter;
@@ -65,7 +62,7 @@ public class RdfIo{
 
 			private void write(IdentifiableDocument<QName, PropertyValue> doc) throws XMLStreamException {
         writeStartElement(doc.getType());
-        writeAttribute(rdfAbout, doc.getIdentity());
+        writeAttribute(rdfAbout, doc.getIdentity().toString());
 
         for (NamedProperty<QName, PropertyValue> property : doc.getProperties()) {
           write(property);
@@ -98,7 +95,7 @@ public class RdfIo{
       }
       
       private boolean isEmptyElementValue(Literal literal) {
-    	  return literal instanceof Literal.QNameLiteral || literal instanceof Literal.UriLiteral;
+    	  return /* literal instanceof Literal.QNameLiteral || */ literal instanceof Literal.UriLiteral;
       }
 
       private void write(Literal literal) throws XMLStreamException {
@@ -106,10 +103,7 @@ public class RdfIo{
           writer.writeCharacters(((Literal.StringLiteral) literal).getValue());
         } else if (literal instanceof Literal.IntegerLiteral) {
         	writer.writeCharacters(((Literal.IntegerLiteral) literal).getValue().toString());
-        } else if(literal instanceof Literal.QNameLiteral) {
-        	Literal.QNameLiteral ql = (Literal.QNameLiteral) literal;
-        	writeAttribute(rdfResource, ql.getValue());
-        } 
+        }
         else if(literal instanceof Literal.UriLiteral) {
         	Literal.UriLiteral ul = (Literal.UriLiteral) literal;
         	writeAttribute(rdfResource, ul.getValue().toString());
@@ -137,14 +131,6 @@ public class RdfIo{
         writer.writeNamespace(binding.getPrefix(), binding.getNamespaceURI());
       }
 
-      private void writeAttribute(QName attrName, QName attrValue) throws XMLStreamException {
-        writer.writeAttribute(
-                attrName.getPrefix(),
-                attrName.getNamespaceURI(),
-                attrName.getLocalPart(),
-                attrValue.getNamespaceURI() + attrValue.getLocalPart());
-      }
-      
       private void writeAttribute(QName attrName, String attrValue) throws XMLStreamException {
           writer.writeAttribute(
                   attrName.getPrefix(),
@@ -276,7 +262,7 @@ public class RdfIo{
 			
 			private void addToStack(QName elementURI) throws XMLStreamException
 			{
-				QName identity = null;
+				URI identity = null;
 				URI resourceURI = null;
 
 				int attributes = xmlReader.getAttributeCount();
@@ -284,7 +270,7 @@ public class RdfIo{
 				{
 					if ("about".equals(xmlReader.getAttributeLocalName(i)) && "rdf".equals(xmlReader.getAttributePrefix(i)))
 					{
-						identity = new QName(xmlReader.getAttributeValue(i));
+						identity = URI.create(xmlReader.getAttributeValue(i));
 					}
 					if ("resource".equals(xmlReader.getAttributeLocalName(i)) && "rdf".equals(xmlReader.getAttributePrefix(i)))
 					{

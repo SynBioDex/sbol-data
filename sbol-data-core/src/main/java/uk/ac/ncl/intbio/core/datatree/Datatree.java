@@ -33,7 +33,7 @@ public final class Datatree
   }
 
   public static <N> TopLevelDocument<N> TopLevelDocument(final N type,
-                                                         final N identity,
+                                                         final URI identity,
                                                          final NamedProperties<N, PropertyValue> properties) {
     return TopLevelDocument(NamespaceBindings(), type, identity, properties);
   }
@@ -56,8 +56,8 @@ public final class Datatree
   }
 
   public static <N> TopLevelDocument<N> TopLevelDocument(final NamespaceBindings namespaceBindings,
-		                                                 final N type,
-                                                         final N identity,
+		                                                     final N type,
+                                                         final URI identity,
                                                          final NamedProperties<N, PropertyValue> properties) {
     return new TopLevelDocument<N>() {
       @Override
@@ -66,7 +66,7 @@ public final class Datatree
       }
 
       @Override
-      public N getIdentity() {
+      public URI getIdentity() {
         return identity;
       }
 
@@ -78,7 +78,7 @@ public final class Datatree
         }
         else
         {
-        	return Collections.<NamedProperty<N, PropertyValue>>emptyList();
+        	return Collections.emptyList();
         }
       }
 
@@ -109,11 +109,16 @@ public final class Datatree
     };
   }
   
-  public static <N> NestedDocument<N> NestedDocument(final N type, final N identity, final NamedProperties<N, PropertyValue> properties) {
+  public static <N> NestedDocument<N> NestedDocument(final N type,
+                                                     final URI identity,
+                                                     final NamedProperties<N, PropertyValue> properties) {
 	  return NestedDocument(NamespaceBindings(), type, identity, properties);
   }
   
-	public static <N> NestedDocument<N> NestedDocument(final NamespaceBindings bindings, final N type, final N identity, final NamedProperties<N, PropertyValue> properties)
+	public static <N> NestedDocument<N> NestedDocument(final NamespaceBindings bindings,
+                                                     final N type,
+                                                     final URI identity,
+                                                     final NamedProperties<N, PropertyValue> properties)
 	{
 		return new NestedDocument<N>()
 		{
@@ -124,7 +129,7 @@ public final class Datatree
 			}
 
 			@Override
-			public N getIdentity()
+			public URI getIdentity()
 			{
 				return identity;
 			}
@@ -138,7 +143,7 @@ public final class Datatree
 		        }
 		        else
 		        {
-		        	return Collections.<NamedProperty<N, PropertyValue>>emptyList();
+		        	return Collections.emptyList();
 		        }
 			}
 
@@ -239,64 +244,69 @@ public final class Datatree
   }
 
   public static <N> NamedProperty<N, Literal> NamedLiteralProperty(final N name, final String value) {
-    return NamedLiteralProperty(name, new Literal.StringLiteral() {
-      @Override
-      public String getValue() {
-        return value;
-      }
-    });
+    return NamedLiteralProperty(name, Literal(value));
   }
 
   public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final String value) {
-    return NamedProperty(name, new Literal.StringLiteral() {
+    return NamedProperty(name, Literal(value));
+  }
+
+  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final int value) {
+    return NamedProperty(name, Literal(value));
+  }
+
+  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final URI value) {
+    return NamedProperty(name, Literal(value));
+  }
+
+  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final NestedDocuments<N> value) {
+    return new NamedProperty<N, PropertyValue>() {
+      @Override
+      public NestedDocuments<N> getValue() {
+        return value;
+      }
+
+      @Override
+      public N getName() {
+        return name;
+      }
+    };
+  }
+
+  public static Literal.StringLiteral Literal(final String value) {
+    return new Literal.StringLiteral() {
       @Override
       public String getValue() {
         return value;
       }
-    });
+    };
   }
 
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final int value) {
-    return NamedProperty(name, new Literal.IntegerLiteral() {
+  public static Literal.IntegerLiteral Literal(final int value) {
+    return new Literal.IntegerLiteral() {
       @Override
       public Integer getValue() {
         return value;
       }
-    });
+    };
   }
 
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final QName value) {
-    return NamedProperty(name, new Literal.QNameLiteral()
-    {
-      @Override
-      public QName getValue() {
-        return value;
-      }
-    });
-  }
-  
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final NestedDocuments<N> value) {
-	    return new NamedProperty<N, PropertyValue>() {
-	      @Override
-	      public NestedDocuments<N> getValue() {
-	        return value;
-	      }	        
-
-	      @Override
-	      public N getName() {
-	        return name;
-	      }
-	    };
-	  }
-
-
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final URI value) {
-    return NamedProperty(name, new Literal.UriLiteral() {
+  public static Literal.UriLiteral Literal(final URI value) {
+    return new Literal.UriLiteral() {
       @Override
       public URI getValue() {
         return value;
       }
-    });
+    };
+  }
+
+  public static Literal.BooleanLiteral Literal(final boolean value) {
+    return new Literal.BooleanLiteral() {
+      @Override
+      public Boolean getValue() {
+        return value;
+      }
+    };
   }
 
   public static NamespaceBinding NamespaceBinding(String namespaceUri, String prefix) {

@@ -27,7 +27,7 @@ public abstract class NameTransformer<From, To> {
   public TopLevelDocument<To> mapTLD(TopLevelDocument<From> f) {
     return Datatree.TopLevelDocument(
             transformName(f.getType()),
-            transformName(f.getIdentity()),
+            f.getIdentity(),
             Datatree.NamedProperties(mapVPs(f.getProperties())));
   }
 
@@ -80,7 +80,7 @@ public abstract class NameTransformer<From, To> {
   private NestedDocument<To> mapND(NestedDocument<From> f) {
     return Datatree.NestedDocument(
             transformName(f.getType()),
-            transformName(f.getIdentity()),
+            f.getIdentity(),
             Datatree.NamedProperties(mapVPs(f.getProperties())));
   }
 
