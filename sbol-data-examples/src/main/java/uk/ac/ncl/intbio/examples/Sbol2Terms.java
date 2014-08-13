@@ -11,15 +11,19 @@ public class Sbol2Terms
 	 
 	  
 	  public static final class component {
-		  public static final QName dnaComponent = sbol2.withLocalPart("DnaComponent");
-		  public static final QName dnaSequence = sbol2.withLocalPart("dnaSequence");
+		  public static final QName sequenceComponent = sbol2.withLocalPart("SequenceComponent");
+		  public static final QName sequence = sbol2.withLocalPart("Sequence");
+		  public static final QName hasSequence = sbol2.withLocalPart("sequence");		  
 		  public static final QName annotation = sbol2.withLocalPart("annotation");
 		  public static final QName sequenceAnnotation = sbol2.withLocalPart("SequenceAnnotation");
-		  public static final QName bioStart = sbol2.withLocalPart("bioStart");
-		  public static final QName bioEnd = sbol2.withLocalPart("bioEnd");
-		  public static final QName strand = sbol2.withLocalPart("strand");
-		  public static final QName subComponent = sbol2.withLocalPart("subComponent");
-		  public static final QName nucleotides = sbol2.withLocalPart("nucleotides");		  		  
+		  public static final QName start = sbol2.withLocalPart("start");
+		  public static final QName end = sbol2.withLocalPart("end");
+		  public static final QName orientation = sbol2.withLocalPart("orientation");
+		  public static final QName component = sbol2.withLocalPart("component");
+		  
+		  public static final QName elements = sbol2.withLocalPart("elements");	
+		  public static final QName sequenceType = sbol2.withLocalPart("sequenceType");	
+		  
 	  }
 	  
 	  public static final class documented {
@@ -41,7 +45,9 @@ public class Sbol2Terms
 	  
 	  public static final class instantiation {
 		  public static final QName componentInstantiation=sbol2.withLocalPart("ComponentInstantiation");
-		  public static final QName hasComponentInstantiation=sbol2.withLocalPart("componentInstantiation");		  		  
+		  public static final QName hasComponentInstantiation=sbol2.withLocalPart("componentInstantiation");	
+		  public static final QName subComponentInstantiation = sbol2.withLocalPart("subComponentInstantiation");
+		  
 	  }
 	  
 	  public static final class model {

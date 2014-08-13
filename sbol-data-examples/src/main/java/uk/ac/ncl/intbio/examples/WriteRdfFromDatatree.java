@@ -45,7 +45,9 @@ public class WriteRdfFromDatatree
 
   public static void main( String[] args ) throws Exception
   {
-	  DocumentRoot originalDocument = makeSBOL2Document();
+	  //DocumentRoot originalDocument = makeSBOL2Document();
+	  DocumentRoot originalDocument = makeSBOL2SequenceComponent();
+	  
 	  write(new OutputStreamWriter(System.out), originalDocument);
 	  StringWriter stringWriter=new StringWriter();
 	  write (stringWriter, originalDocument);
@@ -316,6 +318,66 @@ public class WriteRdfFromDatatree
 		return DocumentRoot(
 				NamespaceBindings(SbolTerms.sbol2),
 				TopLevelDocuments(moduleLacIInverter,modelLacIInverter),
+				Datatree.LiteralProperties(NamedLiteralProperty(QName(dctermsNS, "creator", dctermsPF), "Goksel Misirli"))
+				);
+	}
+	
+	public static DocumentRoot<QName> makeSBOL2SequenceComponent()
+	{
+		TopLevelDocument<QName> pLac=TopLevelDocument(
+				Sbol2Terms.component.sequenceComponent,
+				sbolExample.withLocalPart("sequenceComponent/pLac"),
+				NamedProperties(
+						NamedProperty(Sbol2Terms.documented.name, "pLac"),
+						NamedProperty(Sbol2Terms.documented.displayId, "pLac"),
+						NamedProperty(RdfTerms.rdfType, URI.create("DNA")),
+						NamedProperty(Sbol2Terms.component.sequenceType, URI.create("http://purl.org/obo/owl/SO#SO_0000167"))													
+				));
+		
+		
+		NestedDocument<QName> instantiationpLac=NestedDocument(
+				Sbol2Terms.instantiation.componentInstantiation, 
+				sbolExample.withLocalPart("sequenceComponent/pLac/instantiation"), 
+				NamedProperties(
+						NamedProperty(Sbol2Terms.documented.name, "pLac"),
+						NamedProperty(Sbol2Terms.component.component, pLac.getIdentity())						
+				));
+		
+		NestedDocument<QName> pLacAnnotation=NestedDocument(
+				Sbol2Terms.component.sequenceAnnotation, 
+				sbolExample.withLocalPart("sequenceComponent/UU_002/pLac_annotation"), 
+				NamedProperties(
+						NamedProperty(Sbol2Terms.component.orientation, "inline"),
+						NamedProperty(Sbol2Terms.instantiation.subComponentInstantiation, NestedDocuments(instantiationpLac))						
+				));
+		
+		
+		TopLevelDocument<QName> lacIRepressibleGeneSequence=TopLevelDocument(
+				Sbol2Terms.component.sequence,
+				sbolExample.withLocalPart("sequenceComponent/UU_002/sequence"),
+				NamedProperties(
+						NamedProperty(Sbol2Terms.component.elements, "atg")													
+				));
+		
+		TopLevelDocument<QName> lacIRepressibleGene=TopLevelDocument(
+				Sbol2Terms.component.sequenceComponent,
+				sbolExample.withLocalPart("sequenceComponent/UU_002"),
+				NamedProperties(
+						NamedProperty(Sbol2Terms.documented.name, "LacI Repressible Gene"),
+						NamedProperty(Sbol2Terms.documented.displayId, "UU_002"),
+						NamedProperty(RdfTerms.rdfType, URI.create("DNA")),
+						NamedProperty(Sbol2Terms.component.sequenceType, URI.create("http://purl.org/obo/owl/SO#SO_0000774")),
+						NamedProperty(Sbol2Terms.component.annotation, NestedDocuments(pLacAnnotation)),
+						NamedProperty(Sbol2Terms.component.hasSequence, lacIRepressibleGeneSequence.getIdentity())
+						
+						
+				));
+		
+		
+		
+		return DocumentRoot(
+				NamespaceBindings(SbolTerms.sbol2),
+				TopLevelDocuments(lacIRepressibleGene,pLac,lacIRepressibleGeneSequence),
 				Datatree.LiteralProperties(NamedLiteralProperty(QName(dctermsNS, "creator", dctermsPF), "Goksel Misirli"))
 				);
 	}
