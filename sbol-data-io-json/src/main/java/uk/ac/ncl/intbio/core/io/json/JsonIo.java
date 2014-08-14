@@ -12,6 +12,7 @@ import uk.ac.ncl.intbio.core.io.rdf.RdfTerms;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,53 +59,59 @@ public class JsonIo
 			{
 				writer.writeStartObject(doc.getType());
 				writer.write(rdfAbout, doc.getIdentity().toString());
-				for (NamedProperty<String, PropertyValue> property : doc.getProperties())
+
+				for (Map.Entry<String, List<PropertyValue>> properties : cholate(doc.getProperties()).entrySet())
 				{
-					write(property);
+          writer.writeStartArray(properties.getKey());
+          for(PropertyValue property : properties.getValue()) {
+            write(property);
+          }
+          writer.writeEnd();
 				}
+
 				writer.writeEnd();
 			}
 
-			private void write(NamedProperty<String, PropertyValue> property)
+			private void write(PropertyValue pValue)
 			{
-				if (property.getValue() instanceof Literal)
+				if (pValue instanceof Literal)
 				{
-					Literal value = (Literal) property.getValue();
-					write(property.getName(), value);
+					Literal value = (Literal) pValue;
+					write(value);
 				}
-				else if (property.getValue() instanceof Datatree.NestedDocuments)
+				else if (pValue instanceof Datatree.NestedDocuments)
 				{
-					Datatree.NestedDocuments<String> docs = (Datatree.NestedDocuments<String>) property.getValue();
+					Datatree.NestedDocuments<String> docs = (Datatree.NestedDocuments<String>) pValue;
 					for (NestedDocument<String> doc : docs.getDocuments())
 					{
-						writer.writeStartObject(property.getName());
+            writer.writeStartObject();
 						write(doc);
-						writer.writeEnd();
+            writer.writeEnd();
 					}
 				}
 				else
 				{
-					throw new IllegalStateException("Unknown type of property value for: " + property.getValue());
+					throw new IllegalStateException("Unknown type of property value for: " + pValue);
 				}
 			}
 
-			private void write(String key, Literal literal)
+			private void write(Literal literal)
 			{
 				if (literal instanceof Literal.StringLiteral)
 				{
-					writer.write(key, ((Literal.StringLiteral) literal).getValue());
+					writer.write(((Literal.StringLiteral) literal).getValue());
 				}
 				else if (literal instanceof Literal.IntegerLiteral)
 				{
-					writer.write(key, ((Literal.IntegerLiteral) literal).getValue().toString());
+					writer.write(((Literal.IntegerLiteral) literal).getValue().toString());
 				}
 				else if (literal instanceof Literal.UriLiteral)
 				{
 					Literal.UriLiteral ul = (Literal.UriLiteral) literal;
-					writer.writeStartObject(key).write(
+					writer.writeStartObject().write(
                   rdfResource,
                   ul.getValue().toString());
-					writer.writeEnd();
+          writer.writeEnd();
 				}
 
 				else
@@ -116,6 +123,21 @@ public class JsonIo
 
 		};
 	}
+
+  private Map<String, List<PropertyValue>> cholate(List<NamedProperty<String, PropertyValue>> ps) {
+    Map<String, List<PropertyValue>> res = new HashMap<>();
+
+    for(NamedProperty<String, PropertyValue> np : ps) {
+      List<PropertyValue> pl = res.get(np.getName());
+      if(pl == null) {
+        pl = new ArrayList<>();
+      }
+      pl.add(np.getValue());
+      res.put(np.getName(), pl);
+    }
+
+    return res;
+  }
 
   public IoReader<String> createIoReader(final JsonStructure json)
   {
@@ -147,11 +169,16 @@ public class JsonIo
 
         for(Map.Entry<String, JsonValue> me : object.entrySet()) {
           type = me.getKey();
+          if(!me.getValue().getValueType().equals(JsonValue.ValueType.OBJECT)) {
+            throw new IllegalArgumentException("Expecting object, got: " + me.getValue());
+          }
           for(Map.Entry<String, JsonValue> nme : ((JsonObject) me.getValue()).entrySet()) {
             if(nme.getKey().equals(rdfAbout)) {
               identity = URI.create(((JsonString) nme.getValue()).getString());
             } else {
-              properties.add(Datatree.NamedProperty(nme.getKey(), readPV(nme.getValue())));
+              for(JsonValue jv : (JsonArray) nme.getValue()) {
+                properties.add(Datatree.NamedProperty(nme.getKey(), readPV(jv)));
+              }
             }
           }
         }
@@ -177,7 +204,9 @@ public class JsonIo
             if(nme.getKey().equals(rdfAbout)) {
               identity = URI.create(((JsonString) nme.getValue()).getString());
             } else {
-              properties.add(Datatree.NamedProperty(nme.getKey(), readPV(nme.getValue())));
+              for(JsonValue jv : (JsonArray) nme.getValue()) {
+                properties.add(Datatree.NamedProperty(nme.getKey(), readPV(jv)));
+              }
             }
           }
         }
