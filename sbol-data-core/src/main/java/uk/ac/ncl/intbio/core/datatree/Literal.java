@@ -22,11 +22,9 @@ public interface Literal extends PropertyValue
     @Override
     Integer getValue();
   }
-  
-  public static interface QNameLiteral extends Literal {
-	    @Override
-	    QName getValue();
-	  }
-	  
-  
+
+  public static interface BooleanLiteral extends Literal {
+    @Override
+    Boolean getValue();
+  }
 }
