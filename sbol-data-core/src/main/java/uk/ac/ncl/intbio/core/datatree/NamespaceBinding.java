@@ -1,6 +1,7 @@
 package uk.ac.ncl.intbio.core.datatree;
 
 import javax.xml.namespace.QName;
+import java.net.URI;
 
 /**
  * @author Matthew Pocock
@@ -44,5 +45,9 @@ public final class NamespaceBinding {
 
   public QName withLocalPart(String localPart) {
     return new QName(namespaceURI, localPart, prefix);
+  }
+
+  public URI namespacedUri(String localPart) {
+    return URI.create(namespaceURI + localPart);
   }
 }
