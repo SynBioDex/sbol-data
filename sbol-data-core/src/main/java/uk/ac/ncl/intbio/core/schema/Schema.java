@@ -1,21 +1,25 @@
 package uk.ac.ncl.intbio.core.schema;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 
+import uk.ac.ncl.intbio.core.schema.PropertyValueSchema.*;
+
+
 public class Schema {
 	
 	public static interface Extends {
-		public List<IdentifiableDocumentSchema> getExtends();
+		public List<URI> getExtends();
 	}
 	
-	public static Extends Extends(final IdentifiableDocumentSchema ... schemas) {
+	public static Extends Extends(final URI ... schemas) {
 		return new Extends() {
 
 			@Override
-			public List<IdentifiableDocumentSchema> getExtends() {
+			public List<URI> getExtends() {
 				return Arrays.asList(schemas);
 			}
 			
@@ -68,7 +72,71 @@ public class Schema {
 		};
 	}
 	
+	public static SchemaCatalog SchemaCatalog(final URI identifier, 
+			final ImportedSchemas importedSchemas, 
+			final DocumentSchemas schemas)
+	{
+		return new SchemaCatalog()
+		{
+			
+			@Override
+			public List<IdentifiableDocumentSchema> getSchemas()
+			{				
+				return schemas.getDocumentSchemas();
+			}
+			
+			@Override
+			public List<URI> getImportedSchemas()
+			{
+				return importedSchemas.getSchemas();
+			}
+			
+			@Override
+			public URI getIdentifier()
+			{
+				return identifier;
+			}
+		};		
+	}
+	
+	public static interface ImportedSchemas
+	{
+		List<URI> getSchemas();
+	}
+	
+	public static ImportedSchemas ImportedSchemas(final URI...schemas)
+	{
+		return new ImportedSchemas()
+		{
+			
+			@Override
+			public List<URI> getSchemas()
+			{
+				return Arrays.asList(schemas);
+			}
+		};
+	}
+	
+	public static interface DocumentSchemas
+	{
+		List<IdentifiableDocumentSchema> getDocumentSchemas();
+	}
+	
+	public static DocumentSchemas DocumentSchemas(final IdentifiableDocumentSchema...documentSchemas)
+	{
+		return new DocumentSchemas()
+		{
+
+			@Override
+			public List<IdentifiableDocumentSchema> getDocumentSchemas()
+			{
+				return Arrays.asList(documentSchemas);
+			}
+		};
+	}
+	
 	public static IdentifiableDocumentSchema DocumentSchema(
+			final URI identifier,
 			final Extends ext,
 			final IdentifierSchemas iss,
 			final TypeSchemas tss,
@@ -78,7 +146,7 @@ public class Schema {
 		return new IdentifiableDocumentSchema() {
 
 			@Override
-			public List<IdentifiableDocumentSchema> getExtends() {
+			public List<URI> getExtends() {
 				return ext.getExtends();
 			}
 
@@ -95,6 +163,12 @@ public class Schema {
 			@Override
 			public List<IdentifierSchema> getIdentifierSchemas() {
 				return iss.getIdentifierSchemas();
+			}
+
+			@Override
+			public URI getIdentifier()
+			{
+				return identifier;
 			}
 			
 		};
@@ -200,6 +274,7 @@ public class Schema {
 			return string;
 		}
 		
+		
 	}
 	
 	public static final MultiPropertySchema MultiPropertySchema (
@@ -208,5 +283,15 @@ public class Schema {
 			Ordering ordering)
 	{
 		return new MultiPropertySchema.OrderedPair(firstProperty.getTypeSchemas(), secondProperty.getTypeSchemas(), ordering);
+	}
+	
+	public static final ReferenceValue ReferenceValue(final URI documentType)
+	{
+		return new ReferenceValue(documentType);
+	}
+	
+	public static final DocumentValue DocumentValue(final IdentifiableDocumentSchema documentType)
+	{
+		return new DocumentValue(documentType);
 	}
 }

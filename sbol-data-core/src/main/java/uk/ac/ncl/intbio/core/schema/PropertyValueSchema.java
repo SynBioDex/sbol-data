@@ -1,5 +1,7 @@
 package uk.ac.ncl.intbio.core.schema;
 
+import java.net.URI;
+
 public interface PropertyValueSchema {
 
 	public static final class XsdValue implements PropertyValueSchema
@@ -34,14 +36,14 @@ public static final class DocumentValue implements PropertyValueSchema
 
 public static final class ReferenceValue implements PropertyValueSchema
 {
-	private final  IdentifiableDocumentSchema documentType;
-	public IdentifiableDocumentSchema getDocumentType() {
-		return documentType;
+	private final  URI referenceType;
+	public URI getDocumentType() {
+		return referenceType;
 	}
 
-	public ReferenceValue(IdentifiableDocumentSchema documentType) {
+	public ReferenceValue(URI documentType) {
 		super();
-		this.documentType = documentType;
+		this.referenceType = documentType;
 	}
 }
 
