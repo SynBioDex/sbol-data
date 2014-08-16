@@ -34,17 +34,17 @@ public class SchemaExample {
 						),
 				PropertySchemas(
 						PropertySchema(
-								TypeSchemas(TypeSchema(Sbol2Terms.component.bioStart)),
+								TypeSchemas(TypeSchema(Sbol2Terms.component.start)),
 								cardinality.optional, PropertyValueSchemas(propertyType.integer)),
 						PropertySchema(
-								TypeSchemas(TypeSchema(Sbol2Terms.component.bioEnd)),
+								TypeSchemas(TypeSchema(Sbol2Terms.component.end)),
 								cardinality.optional, PropertyValueSchemas(propertyType.integer)),
 						PropertySchema(
-								TypeSchemas(TypeSchema(Sbol2Terms.component.strand)),
+								TypeSchemas(TypeSchema(Sbol2Terms.component.orientation)),
 								cardinality.optional, PropertyValueSchemas(propertyType.oneOf("POSITIVE","NEGATIVE"))),
 						MultiPropertySchema(
-								TypeSchemas(TypeSchema(Sbol2Terms.component.bioStart)),
-								TypeSchemas(TypeSchema(Sbol2Terms.component.bioEnd)),
+								TypeSchemas(TypeSchema(Sbol2Terms.component.start)),
+								TypeSchemas(TypeSchema(Sbol2Terms.component.end)),
 								Ordering.LESS_THAN_OR_EQUAL)	
 							)
 						
