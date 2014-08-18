@@ -9,7 +9,7 @@ public class SchemaExample {
 
 	public static void main (String[] args)
 	{
-		IdentifiableDocumentSchema documentedSchema = DocumentSchema(
+		/*IdentifiableDocumentSchema documentedSchema = DocumentSchema(
 				Extends(),
 				IdentifierSchemas(),
 				TypeSchemas(),
@@ -54,6 +54,6 @@ public class SchemaExample {
 						
 				);
 		
-		
+		*/
 	}
 }
