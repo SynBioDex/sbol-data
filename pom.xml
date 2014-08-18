@@ -22,6 +22,7 @@
     <module>sbol-data-nativeSbol</module>
     <module>sbol-data-io-RDF</module>
     <module>sbol-data-examples</module>
+    <module>sbol-data-io-graphviz</module>
   </modules>
     <build>
         <pluginManagement>
