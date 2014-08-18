@@ -36,9 +36,8 @@ public class WriteRdfFromDatatree
 
   public static void main( String[] args ) throws Exception
   {
-	  //DocumentRoot originalDocument = makeSBOL2Document();
-	  DocumentRoot originalDocument = DataTreeCreator.makeSBOL2SequenceComponent();
-	  
+
+	  DocumentRoot originalDocument = DataTreeCreator.makeSBOL2Document();
 	  write(new OutputStreamWriter(System.out), originalDocument);
 	  StringWriter stringWriter=new StringWriter();
 	  write (stringWriter, originalDocument);
@@ -75,6 +74,4 @@ public class WriteRdfFromDatatree
 		RdfIo rdfIo = new RdfIo();
 		return rdfIo.createIoReader(xmlReader).read();		
 	}
-
-	
 }

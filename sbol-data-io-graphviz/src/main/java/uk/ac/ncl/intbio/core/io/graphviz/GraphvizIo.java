@@ -2,6 +2,7 @@ package uk.ac.ncl.intbio.core.io.graphviz;
 
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.net.URI;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -50,7 +51,7 @@ public class GraphvizIo
 
 			}
 
-			private void write(QName parent, NamedProperty<QName, PropertyValue> property)
+			private void write(URI parent, NamedProperty<QName, PropertyValue> property)
 			{
 				if (property.getValue() instanceof Datatree.NestedDocuments)
 				{
@@ -79,11 +80,6 @@ public class GraphvizIo
 				else if (literal instanceof Literal.IntegerLiteral)
 				{
 					val = ((Literal.IntegerLiteral) literal).getValue().toString();
-				}
-				else if (literal instanceof Literal.QNameLiteral)
-				{
-					Literal.QNameLiteral ql = (Literal.QNameLiteral) literal;
-					val = ql.getValue().getLocalPart();
 				}
 				else if (literal instanceof Literal.UriLiteral)
 				{

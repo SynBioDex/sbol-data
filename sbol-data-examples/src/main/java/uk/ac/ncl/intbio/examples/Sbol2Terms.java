@@ -8,7 +8,7 @@ public class Sbol2Terms
 {
 	  public static final NamespaceBinding sbol2 = new NamespaceBinding("http://sbols.org/v2#", "sbol2");
 	  
-	 
+	  
 	  
 	  public static final class component {
 		  public static final QName sequenceComponent = sbol2.withLocalPart("SequenceComponent");
