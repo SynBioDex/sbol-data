@@ -23,7 +23,7 @@ public class GraphvizIo
     private DocumentStyler documentStyler = Styler.document.identityAsLabel;
     private LiteralStyler literalStyler = Styler.literal.valueAslabel;
     private EdgeStyler edgeStyler = Styler.edge.nameAsLabel;
-    private LinkerStyler linkStyler = Styler.linker.nonConstraint;
+    private LinkerStyler linkStyler = Styler.linker.all(/*Styler.linker.nonConstraint,*/ Styler.linker.dashed);
 
     private String applyStyle(IdentifiableDocument<QName, ? extends PropertyValue> doc) {
         Map<String, String> styles = new HashMap<>();
@@ -109,18 +109,40 @@ public class GraphvizIo
 				{
 					write(child);
 				}
+
+                writer.print("{rank=same ");
+                for (TopLevelDocument<QName> child : document.getTopLevelDocuments())
+                {
+                    writer.print("\"" + child.getIdentity().toString() + "\" ");
+                }
 				writer.println("}");
+
+                writer.println("}");
 			}
 
-			private void write(IdentifiableDocument<QName, PropertyValue> doc)
+			private void write(IdentifiableDocument<QName, PropertyValue> document)
 			{
-				writer.println("\"" + doc.getIdentity() + "\" [" + applyStyle(doc) + "];");
+				writer.println("\"" + document.getIdentity() + "\" [" + applyStyle(document) + "];");
 
-				for (NamedProperty<QName, PropertyValue> property : doc.getProperties())
+				for (NamedProperty<QName, PropertyValue> property : document.getProperties())
 				{
-					write(doc, property);
+					write(document, property);
 				}
 
+                writer.print("{rank=same ");
+                for (NamedProperty<QName, PropertyValue> property : document.getProperties())
+                {
+                    PropertyValue pv = property.getValue();
+                    if(pv instanceof Datatree.NestedDocuments) {
+                        for(NestedDocument<QName> doc : ((Datatree.NestedDocuments<QName>) pv).getDocuments()) {
+                            writer.print("\"" + doc.getIdentity().toString() + "\" ");
+                        }
+                    } else {
+                        Literal literal = (Literal) pv;
+                        writer.print("\"" + literal.toString() + "\" ");
+                    }
+                }
+				writer.println("}");
 			}
 
 			private void write(IdentifiableDocument<QName, PropertyValue> parent, NamedProperty<QName, PropertyValue> property)

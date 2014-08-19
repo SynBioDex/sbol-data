@@ -95,7 +95,4 @@ public abstract class NameTransformer<From, To> {
     return bs;
   }
 
-  private static interface Func<F, R> {
-    public R apply(F f);
-  }
 }
