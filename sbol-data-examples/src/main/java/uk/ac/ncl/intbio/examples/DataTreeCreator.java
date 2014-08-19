@@ -29,7 +29,6 @@ import uk.ac.ncl.intbio.core.schema.SchemaCatalog;
 
 public class DataTreeCreator {
 
-	private static String sbol2NS = "http://sbol.org/sbolv2#";
 	  public static final NamespaceBinding partsRegistry = new NamespaceBinding("http://partsregistry.org/", "pr");
 	  public static final NamespaceBinding sbolExample = new NamespaceBinding("http://sbolstandard.org/example#", "sbolexample");
 	  
@@ -532,5 +531,3 @@ public class DataTreeCreator {
 			);
 	}
 }
-
-

@@ -24,6 +24,7 @@
     <module>sbol-data-examples</module>
     <module>sbol-data-io-graphviz</module>
     <module>sbol-data-io-json</module>
+    <module>sbol-data-io-turtle</module>
   </modules>
     <build>
         <pluginManagement>
