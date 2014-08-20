@@ -22,13 +22,17 @@ import uk.ac.ncl.intbio.core.datatree.PropertyValue;
 import uk.ac.ncl.intbio.core.datatree.TopLevelDocument;
 import uk.ac.ncl.intbio.core.io.rdf.RdfIo;
 import uk.ac.ncl.intbio.core.io.rdf.RdfTerms;
+import uk.ac.ncl.intbio.core.schema.Cardinality;
 import uk.ac.ncl.intbio.core.schema.IdentifiableDocumentSchema;
 import uk.ac.ncl.intbio.core.schema.MultiPropertySchema;
 import uk.ac.ncl.intbio.core.schema.NamedPropertySchema;
 import uk.ac.ncl.intbio.core.schema.Ordering;
 import uk.ac.ncl.intbio.core.schema.PropertySchema;
 import uk.ac.ncl.intbio.core.schema.PropertyValueSchema;
+import uk.ac.ncl.intbio.core.schema.PropertyValueSchema.DocumentValue;
+import uk.ac.ncl.intbio.core.schema.PropertyValueSchema.ReferenceValue;
 import uk.ac.ncl.intbio.core.schema.SchemaCatalog;
+import uk.ac.ncl.intbio.core.schema.PropertyValueSchema.XsdValue;
 import uk.ac.ncl.intbio.core.schema.Schema.PropertyValueSchemas;
 import uk.ac.ncl.intbio.core.schema.Schema.cardinality;
 import uk.ac.ncl.intbio.core.schema.Schema.propertyType;
@@ -47,8 +51,13 @@ public class SchemaExample {
 	{
 		
 		DocumentRoot originalDocument = makeDocument(makeCoreSchemaCatalog());
-
-		  write(new OutputStreamWriter(System.out), originalDocument);
+		//write(new OutputStreamWriter(System.out), originalDocument);
+		originalDocument = makeDocument(makeComponentSchemaCatalog());
+		//write(new OutputStreamWriter(System.out), originalDocument);
+		originalDocument = makeDocument(makeInstantiationSchemaCatalog());
+		write(new OutputStreamWriter(System.out), originalDocument);
+		
+		 
 		//  String test="";
 		/*IdentifiableDocumentSchema documentedSchema = DocumentSchema(
 				Extends(),
@@ -217,8 +226,66 @@ public class SchemaExample {
 		return NestedDocument(
 				NamespaceBindings(SbolTerms.sbol2),
 				Sbol2SchemaTerms.propertySchema, 
-				URI.create("http://www.dummy.URI"),
-				NamedProperties(NamedProperty(Sbol2SchemaTerms.hasSchema,"sd"))
+				URI.create(schema.toString()),
+				NamedProperties(
+						merge(
+								getTypeSchemaProperties(((NamedPropertySchema)schema).getTypeSchemas()),
+								getCardinalities(((NamedPropertySchema)schema).getCardinalities()),
+								getPropertyValueSchemaProperties(((NamedPropertySchema)schema).getValueSchemas())
+								
+						)
+				)
+			);
+	}
+	
+	public static List<NamedProperty<QName,PropertyValue>> getPropertyValueSchemaProperties(List<PropertyValueSchema> valueSchemas)
+	{
+		List<NamedProperty<QName,PropertyValue>> properties=new ArrayList<NamedProperty<QName,PropertyValue>>();
+		for (PropertyValueSchema valueSchema:valueSchemas)
+		{
+			if (valueSchema instanceof XsdValue)
+			{
+				String value =((XsdValue) valueSchema).getXsdType();
+				properties.add(NamedProperty(Sbol2SchemaTerms.xsdType,value));				
+			}
+			else if (valueSchema instanceof DocumentValue){
+				IdentifiableDocumentSchema value =((DocumentValue) valueSchema).getDocumentType();
+				properties.add(NamedProperty(Sbol2SchemaTerms.documentValue,NestedDocuments(getDocumentSchema(value))));				
+			}
+			else if (valueSchema instanceof ReferenceValue){
+				URI value =((ReferenceValue) valueSchema).getDocumentType();
+				properties.add(NamedProperty(Sbol2SchemaTerms.referenceValue,value));						
+			}
+			
+		}
+		return properties;
+	}
+	
+	public static List<NamedProperty<QName,PropertyValue>>  getCardinalities(List<Cardinality> cardinalities)
+	{
+		List<NestedDocument<QName>> documents=new ArrayList<NestedDocument<QName>>();
+		for (Cardinality cardinality:cardinalities)
+		{
+			documents.add(getCardinalityDocument(cardinality));
+		}
+		List<NamedProperty<QName,PropertyValue>> properties=new ArrayList<NamedProperty<QName,PropertyValue>>();
+		if (documents.size()>0)
+		{
+			properties.add(NamedProperty(Sbol2SchemaTerms.hasCardinality,NestedDocuments(documents)));
+		}
+		return properties;
+	}
+	
+	private static NestedDocument<QName> getCardinalityDocument(Cardinality cardinality)
+	{
+		return NestedDocument(
+				NamespaceBindings(SbolTerms.sbol2),
+				Sbol2SchemaTerms.cardinality, 
+				URI.create(cardinality.toString()),
+				NamedProperties(
+						NamedProperty(Sbol2SchemaTerms.bounds,cardinality.getBounds()),
+						NamedProperty(Sbol2SchemaTerms.ordering,cardinality.getOrdering().toString())
+				)
 			);
 	}
 	
@@ -231,7 +298,10 @@ public class SchemaExample {
 		}
 		return schemas;
 	}
-	
+	private static URI getURI(QName qname)
+	{
+		return URI.create(qname.getNamespaceURI() + qname.getLocalPart());
+	}
 	public static List<NamedProperty<QName,PropertyValue>> getTypeSchemaProperties(List<TypeSchema> typeSchemas)
 	{
 		List<NamedProperty<QName,PropertyValue>> properties=new ArrayList<NamedProperty<QName,PropertyValue>>();
@@ -239,7 +309,8 @@ public class SchemaExample {
 		{
 			if (schema instanceof ExactType)
 			{
-				properties.add(NamedProperty(Sbol2SchemaTerms.exactType,((ExactType) schema).getType().getLocalPart()));//TODO create the full URI				
+				QName qname=((ExactType) schema).getType();
+				properties.add(NamedProperty(Sbol2SchemaTerms.exactType,getURI(qname)));				
 			}
 			else if (schema instanceof HasPrefix){
 				properties.add(NamedProperty(Sbol2SchemaTerms.hasPrefix,((HasPrefix) schema).getPrefix()));				
