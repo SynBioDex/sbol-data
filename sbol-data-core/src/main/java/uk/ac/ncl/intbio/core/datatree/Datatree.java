@@ -92,7 +92,7 @@ public final class Datatree
         return new TLD();
     }
 
-    public static interface NestedDocuments<N>  extends PropertyValue {
+    public static interface NestedDocuments<N> {
         public List<NestedDocument<N>> getDocuments();
     }
 
@@ -264,10 +264,10 @@ public final class Datatree
         return NamedProperty(name, Literal(value));
     }
 
-    public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final NestedDocuments<N> value) {
+    public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final NestedDocument<N> value) {
         return new NamedProperty<N, PropertyValue>() {
             @Override
-            public NestedDocuments<N> getValue() {
+            public NestedDocument<N> getValue() {
                 return value;
             }
 

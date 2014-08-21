@@ -61,8 +61,8 @@ public abstract class NameTransformer<From, To> {
   }
 
   public PropertyValue mapV(PropertyValue f) {
-    if(f instanceof Datatree.NestedDocuments) {
-      return mapNDs((Datatree.NestedDocuments<From>) f);
+    if(f instanceof NestedDocument) {
+      return mapND((NestedDocument<From>) f);
     } else {
       return f;
     }

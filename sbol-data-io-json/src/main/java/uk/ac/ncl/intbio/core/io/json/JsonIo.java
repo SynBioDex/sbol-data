@@ -37,92 +37,89 @@ public class JsonIo
     this.rdfResource = rdfResource;
   }
 
-	public IoWriter<String> createIoWriter(final JsonGenerator writer)
-	{
-		return new IoWriter<String>()
-		{
+  public IoWriter<String> createIoWriter(final JsonGenerator writer)
+  {
+    return new IoWriter<String>()
+    {
 
       @Override
-			public void write(DocumentRoot<String> document) throws CoreIoException
-			{
-				writer.writeStartArray();
-				for (TopLevelDocument<String> child : document.getTopLevelDocuments())
-				{
-					writer.writeStartObject();
-					write(child);
-					writer.writeEnd();
-				}
-				writer.writeEnd();
-			}
+      public void write(DocumentRoot<String> document) throws CoreIoException
+      {
+        writer.writeStartArray();
+        for (TopLevelDocument<String> child : document.getTopLevelDocuments())
+        {
+          writer.writeStartObject();
+          write(child);
+          writer.writeEnd();
+        }
+        writer.writeEnd();
+      }
 
-			private void write(IdentifiableDocument<String, PropertyValue> doc)
-			{
-				writer.writeStartObject(doc.getType());
-				writer.write(rdfAbout, doc.getIdentity().toString());
+      private void write(IdentifiableDocument<String, PropertyValue> doc)
+      {
+        writer.writeStartObject(doc.getType());
+        writer.write(rdfAbout, doc.getIdentity().toString());
 
-				for (Map.Entry<String, List<PropertyValue>> properties : cholate(doc.getProperties()).entrySet())
-				{
+        for (Map.Entry<String, List<PropertyValue>> properties : cholate(doc.getProperties()).entrySet())
+        {
           writer.writeStartArray(properties.getKey());
           for(PropertyValue property : properties.getValue()) {
             write(property);
           }
           writer.writeEnd();
-				}
+        }
 
-				writer.writeEnd();
-			}
+        writer.writeEnd();
+      }
 
-			private void write(PropertyValue pValue)
-			{
-				if (pValue instanceof Literal)
-				{
-					Literal value = (Literal) pValue;
-					write(value);
-				}
-				else if (pValue instanceof Datatree.NestedDocuments)
-				{
-					Datatree.NestedDocuments<String> docs = (Datatree.NestedDocuments<String>) pValue;
-					for (NestedDocument<String> doc : docs.getDocuments())
-					{
-            writer.writeStartObject();
-						write(doc);
-            writer.writeEnd();
-					}
-				}
-				else
-				{
-					throw new IllegalStateException("Unknown type of property value for: " + pValue);
-				}
-			}
+      private void write(PropertyValue pValue)
+      {
+        if (pValue instanceof Literal)
+        {
+          Literal value = (Literal) pValue;
+          write(value);
+        }
+        else if (pValue instanceof NestedDocument)
+        {
+          NestedDocument<String> doc = (NestedDocument<String>) pValue;
+          writer.writeStartObject();
+          write((IdentifiableDocument<String, PropertyValue>) doc);
+          writer.writeEnd();
+        }
+        else
+        {
+          throw new IllegalStateException("Unknown type of property value for: " + pValue);
+        }
+      }
 
-			private void write(Literal literal)
-			{
-				if (literal instanceof Literal.StringLiteral)
-				{
-					writer.write(((Literal.StringLiteral) literal).getValue());
-				}
-				else if (literal instanceof Literal.IntegerLiteral)
-				{
-					writer.write(((Literal.IntegerLiteral) literal).getValue().toString());
-				}
-				else if (literal instanceof Literal.UriLiteral)
-				{
-					Literal.UriLiteral ul = (Literal.UriLiteral) literal;
-					writer.writeStartObject().write(
+      private void write(Literal literal)
+      {
+        if (literal instanceof Literal.StringLiteral)
+        {
+          writer.write(((Literal.StringLiteral) literal).getValue());
+        }
+        else if (literal instanceof Literal.IntegerLiteral)
+        {
+          writer.write(((Literal.IntegerLiteral) literal).getValue().toString());
+        }
+        else if (literal instanceof Literal.UriLiteral)
+        {
+          Literal.UriLiteral ul = (Literal.UriLiteral) literal;
+          writer.writeStartObject().write(
                   rdfResource,
                   ul.getValue().toString());
           writer.writeEnd();
-				}
+        }
 
-				else
-				{
-					throw new IllegalStateException("Unknown type of literal: " + literal.getClass().getName() + " extends "
-							+ literal.getClass().getInterfaces()[0].getName());
-				}
-			}
+        else
+        {
+          throw new IllegalStateException("Unknown type of literal: " + literal.getClass().getName() + " extends "
+                  + literal.getClass().getInterfaces()[0].getName());
+        }
+      }
 
-		};
-	}
+    };
+  }
 
   private Map<String, List<PropertyValue>> cholate(List<NamedProperty<String, PropertyValue>> ps) {
     Map<String, List<PropertyValue>> res = new HashMap<>();
@@ -244,7 +241,7 @@ public class JsonIo
         if(res != null) {
           return Datatree.Literal(URI.create(((JsonString) res).getString()));
         } else {
-          return Datatree.NestedDocuments(readND(value));
+          return readND(value);
         }
       }
     };
