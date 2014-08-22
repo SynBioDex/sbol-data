@@ -23,7 +23,9 @@ import static uk.ac.ncl.intbio.core.io.rdf.RdfTerms.*;
  * The IO layer to read and write {@link DocumentRoot}s using RDF/XML.
  * <p>
  * Documents are serialised using nesting, in which {@link TopLevelDocument}s embed {@link NestedDocument}s. 
- * <br></br>
+ * </p>
+ *
+ * <p>
  * Both {@link TopLevelDocument}s and {@link NestedDocument}s are represented as RDF resources, and 
  * {@link NamedProperty} objects are serialised as statements for these RDF resources. 
  * </p>
@@ -187,7 +189,7 @@ public class RdfIo{
    * </p>
    * @param xmlReader The {@link XMLStreamReader} reader to read RDF/XML data.
    * @return {@link IoReader}
-   * @throws XMLStreamException
+   * @throws XMLStreamException  when the underlying reader raises an exception
    */
   public IoReader<QName> createIoReader(final XMLStreamReader xmlReader) throws XMLStreamException
   {
@@ -234,38 +236,41 @@ public class RdfIo{
       private List<TopLevelDocument<QName>> topLevelDocuments=null;
 
       /**
-       * Reads RDF document and returns TopLevelDocuments. Properties and
+       * Reads RDF document and returns TopLevelDocuments.
+       *
+       * <p>
+       * Properties and
        * documents are stored in a Stack object and populated as more data
        * become available The stack object holds one TopLevelDocument at a
        * time. Once a TopLevelDocument is read it is added to the
        * topLevelDocuments collection. For triples within a
-       * TopLevelDocument the following rules apply:<br></br>
+       * TopLevelDocument the following rules apply:
+       * </p>
        * Starting tags:
        * <p>
-       * <br></br>
        * If a triple contains rdf:about attribute it is assumed that the
        * tag is the start of a NestedDocument. An empty Nested document is
-       * added to the stack <br></br>
+       * added to the stack.
        * If a triple contains rdf:resource, a NamedProperty with a URI
-       * value is created and added to the stack <br></br>
+       * value is created and added to the stack.
        * Otherwise a NamedProperty without a value is added to the stack
        * </p>
-       * <br></br>
+       *
        * End tags:
        * <p>
-       * For each end tag, an object is taken from the stack. <br></br>
+       * For each end tag, an object is taken from the stack.
        * If the object is a property The property is removed from the
        * stack The XML value (if the value exists) is used to set the
        * value of that property. The property is then added to the recent
        * document in the stack. This document can be a NestedDocument or a
-       * TopLevelDocument <br></br>
+       * TopLevelDocument.
        * If the object is a NestedDocument, the document is removed from
        * the stack. The property identifying the document in this case is
        * the most recent object in the stack and it is also removed from
        * the stack. The NestedDocument is then added to the parent
        * document (it can be a another NestedDocument or a
        * TopLevelDocument using the property relationship. This parent
-       * document is the most recent object after removing the property.<br></br>
+       * document is the most recent object after removing the property.
        * If the object is TopLevelDocument, the object is removed from the
        * stack and added to the topLevelDocuments collection
        * </p>
