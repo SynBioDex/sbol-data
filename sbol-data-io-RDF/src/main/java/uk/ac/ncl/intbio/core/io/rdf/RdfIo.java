@@ -20,21 +20,24 @@ import uk.ac.ncl.intbio.core.io.IoWriter;
 import static uk.ac.ncl.intbio.core.io.rdf.RdfTerms.*;
 
 /** 
- * The IO layer for writing/reading a {@link DocumentRoot} using RDF/XML.
- * Documents are serialised using nesting, in which TopLevelDocuments embed NestedDocuments. 
- * Both TopLevelDocumens and NestedDocuments are represented as RDF resources, and 
- * NamedProperties are serialised as statements for these RDF resources. 
+ * The IO layer to read and write {@link DocumentRoot}s using RDF/XML.
+ * <p>
+ * Documents are serialised using nesting, in which {@link TopLevelDocument}s embed {@link NestedDocument}s. 
+ * <br/>
+ * Both {@link TopLevelDocument}s and {@link NestedDocument}s are represented as RDF resources, and 
+ * {@link NamedProperty} objects are serialised as statements for these RDF resources. 
+ * </p>
  */
 public class RdfIo{
   
   /**
-   * Creates an IOWriter using the given XML writer.
+   * Creates an {@link IoWriter} using the given {@link XMLStreamWriter} object.
    * 
-   * <p>This IOWriter provides a method to serialise {@link DocumentRoot} objects in RDF/XML format. 
-   * During the serialisation, the RDF namespace is added if it is not provided in the NameSpaceBindings for a DocumentRoot.
+   * <p>This {@link IoWriter} provides a method to write {@link DocumentRoot} objects in RDF/XML format. 
+   * During the serialisation, the RDF namespace is added if it is not provided in the {@link NamespaceBinding}s property of a {@link DocumentRoot}.
    * </p>
    * @param writer The {@link XMLStreamWriter} writer to serialise a {@link DocumentRoot}
-   * @return {@link IoWriter<QName>}
+   * @return {@link IoWriter}
    */
   public IoWriter<QName> createIoWriter(final XMLStreamWriter writer)
   {
@@ -178,12 +181,12 @@ public class RdfIo{
   }
   
   /**
-   * Creates an IOReader using the given {@link XMLStreamReader}
+   * Creates an {@link IoReader} using the given {@link XMLStreamReader}
    * <p>
-   * This IOReader provides a method to read data in RDF/XML format and deserialise it into a {@link DocumentRoot} object.
+   * This {@link IoReader} provides a method to read data in RDF/XML format and deserialise it into a {@link DocumentRoot} object.
    * </p>
    * @param xmlReader The {@link XMLStreamReader} reader to read RDF/XML data
-   * @return {@link IoReader<QName>}
+   * @return {@link IoReader}
    * @throws XMLStreamException
    */
   public IoReader<QName> createIoReader(final XMLStreamReader xmlReader) throws XMLStreamException
