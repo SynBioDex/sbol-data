@@ -14,17 +14,26 @@ import uk.ac.ncl.intbio.core.schema.SchemaCatalog;
 
 import static uk.ac.ncl.intbio.core.datatree.Datatree.*;
 import static uk.ac.ncl.intbio.core.schema.Schema.*;
-
+/**
+ * Provides methods to create example Datatrees 
+ * @author goksel
+ *
+ */
 public class DataTreeCreator {
 
-  public static final NamespaceBinding partsRegistry = NamespaceBinding("http://partsregistry.org/", "pr");
-  public static final NamespaceBinding sbolExample = NamespaceBinding("http://sbolstandard.org/example#", "example");
-  public static final NamespaceBinding obo = NamespaceBinding("http://purl.obolibrary.org/obo/", "obo");
-  public static final NamespaceBinding utah = NamespaceBinding("http://www.async.ece.utah.edu/", "utah");
+  private static final NamespaceBinding partsRegistry = NamespaceBinding("http://partsregistry.org/", "pr");
+  private static final NamespaceBinding sbolExample = NamespaceBinding("http://sbolstandard.org/example#", "example");
+  private static final NamespaceBinding obo = NamespaceBinding("http://purl.obolibrary.org/obo/", "obo");
+  private static final NamespaceBinding utah = NamespaceBinding("http://www.async.ece.utah.edu/", "utah");
 
   private static String dctermsNS = "http://purl.org/dc/terms/";
   private static String dctermsPF = "dcterms";
 
+  /**
+   * Creates an example {@link DocumentRoot} object with data from the SBOL2.0 proposed data model.
+   * Included SBOL objects are Module, Interaction, Participation, ComponentInstantiation and Model.
+   * @return {@link DocumentRoot}
+   */
   public static DocumentRoot<QName> makeSBOL2Document()
   {
     NestedDocument<QName> instantiationLacI=NestedDocument(
@@ -230,6 +239,11 @@ public class DataTreeCreator {
     );
   }
 
+  /**
+   * Creates an example {@link DocumentRoot} object with data from the SBOL2.0 proposed data model.
+   * Included SBOL objects from the data model are SequenceComponent, ComponentInstantiation, SequenceAnnotation and SequenceComponent.
+   * @return {@link DocumentRoot}
+   */
   public static DocumentRoot<QName> makeSBOL2SequenceComponent()
   {
     TopLevelDocument<QName> pLac=TopLevelDocument(
@@ -289,6 +303,11 @@ public class DataTreeCreator {
   }
 
 
+  /**
+   * Creates an example {@link DocumentRoot} object with data from the SBOL1.1 data model.
+   * Included SBOL objects are DnaComponent, SequenceAnnotation and DnaSequence.
+   * @return {@link DocumentRoot}
+   */
   public static DocumentRoot<QName> makeDocument()
   {
     return DocumentRoot(
@@ -361,6 +380,10 @@ public class DataTreeCreator {
             Datatree.LiteralProperties(NamedLiteralProperty(QName(dctermsNS, "creator", dctermsPF), "Matthew Pocock")));
   }
 
+  /**
+   * Creates a {@link SchemaCatalog} for the SBOL20 core objects
+   * @return {@link SchemaCatalog}
+   */
   public static SchemaCatalog makeCoreSchemaCatalog()
   {
     return SchemaCatalog(
@@ -408,6 +431,10 @@ public class DataTreeCreator {
   }
 
 
+  /**
+   * Creates a {@link SchemaCatalog} for the SBOL20 instantiation objects
+   * @return {@link SchemaCatalog}
+   */
   public static SchemaCatalog makeInstantiationSchemaCatalog()
   {
     return SchemaCatalog(
@@ -436,7 +463,10 @@ public class DataTreeCreator {
   }
 
 
-
+  /**
+   * Creates a {@link SchemaCatalog} for the SBOL20 component objects
+   * @return {@link SchemaCatalog}
+   */
   public static SchemaCatalog makeComponentSchemaCatalog()
   {
     return SchemaCatalog(

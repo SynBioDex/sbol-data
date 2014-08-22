@@ -5,6 +5,10 @@ import javax.xml.namespace.QName;
 import uk.ac.ncl.intbio.core.datatree.NamespaceBinding;
 import static uk.ac.ncl.intbio.core.datatree.Datatree.NamespaceBinding;
 
+/**
+ * Provides qualified names for SBOL1.1.0 objects
+ *
+ */
 public class SbolTerms
 {
 	  public static final NamespaceBinding sbol2 = NamespaceBinding("http://sbols.org/v2#", "sbol2");

@@ -24,9 +24,19 @@ import uk.ac.ncl.intbio.core.io.graphviz.GraphvizIo;
 import uk.ac.ncl.intbio.core.io.graphviz.Styler;
 import uk.ac.ncl.intbio.core.io.rdf.RdfIo;
 import uk.ac.ncl.intbio.core.io.rdf.RdfTerms;
-
+/**
+ * Provides an example for exporting {@link DocumentRoot} objects using the JSON format.
+ * In the example, {@link DocumentRoot} objects with both SBOL1.1.0 and SBOL2.0 data are exported in the GraphViz format.
+ * @param args
+ * @throws Exception
+ */
 public class GraphvizExample
 {
+	/**
+	 * Exports two example DocumentRoot objects (SBOL 1.1.0 and SBOL 2.0 objects) in the GraphViz format. 
+	 * @param args
+	 * @throws Exception
+	 */
   public static void main( String[] args ) throws Exception
   {
     System.out.println("SBOL 1 example");
@@ -73,7 +83,10 @@ public class GraphvizExample
       }
     }
   };
-
+  
+  /**
+   * A map defining the mapping between SO terms and respective icons to be displayed when a DocumentRoot is exported.
+   */
   public static final Map<URI, String> graphvizShapeForSo;
 
   static {

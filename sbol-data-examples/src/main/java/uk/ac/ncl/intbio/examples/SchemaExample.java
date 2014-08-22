@@ -1,10 +1,14 @@
 package uk.ac.ncl.intbio.examples;
 
+
 import uk.ac.ncl.intbio.core.schema.IdentifiableDocumentSchema;
 import uk.ac.ncl.intbio.core.schema.MultiPropertySchema;
 import uk.ac.ncl.intbio.core.schema.Ordering;
 import static uk.ac.ncl.intbio.core.schema.Schema.*;
 
+/**
+ * The examples for the schemas are still in progress!
+ */
 public class SchemaExample {
 
 	public static void main (String[] args)
