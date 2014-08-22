@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>uk.ac.ncl.intbio</groupId>
-    <artifactId>sbol-data</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <name>sbol-data</name>
-    <description>APIs to manage SBOL-shaped data documents</description>
-    <url>https://github.com/drdozer/sbol-data</url>
-    <issueManagement>
-        <system>GitHub Issues</system>
-        <url>https://github.com/drdozer/sbol-data/issues</url>
-    </issueManagement>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>uk.ac.ncl.intbio</groupId>
+  <artifactId>sbol-data</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>sbol-data</name>
+  <description>APIs to manage SBOL-shaped data documents</description>
+  <url>https://github.com/drdozer/sbol-data</url>
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/drdozer/sbol-data/issues</url>
+  </issueManagement>
 
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
-    <modules>
+  <modules>
     <module>sbol-data-core</module>
     <module>sbol-data-nativeSbol</module>
     <module>sbol-data-io-RDF</module>
@@ -26,80 +26,70 @@
     <module>sbol-data-io-json</module>
     <module>sbol-data-io-turtle</module>
   </modules>
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <!-- settings for javac. -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <source>1.7</source>
-                        <target>1.7</target>
-                        <showDeprecation>true</showDeprecation>
-                    </configuration>
-                </plugin>
-			<plugin>
-				 <!-- Create a jar file with the dependencies -->
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.1</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-              	<shadedClassifierName>withDependencies</shadedClassifierName>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9.1</version>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-					 <execution>
-            <id>aggregate</id>
-            <goals>
-              <goal>aggregate</goal>
-            </goals>
-            <phase>site</phase>
+  <build>
+      <plugins>
+        <plugin>
+          <!-- settings for javac. -->
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.7</source>
+            <target>1.7</target>
+            <showDeprecation>true</showDeprecation>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-javadoc-plugin</artifactId>
+          <version>2.9.1</version>
+          <executions>
+            <execution>
+              <id>attach-javadocs</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>aggregate</id>
+              <goals>
+                <goal>aggregate</goal>
+              </goals>
+              <phase>site</phase>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>attach-sources</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+      </plugins>
+    <resources>
+      <resource>
+        <!-- Enable substitution of ${foo} maven variables in resource files. -->
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+  </build>
 
-          </execution>
-				</executions>
-				
-			</plugin>
-            </plugins>
-        </pluginManagement>
-        <resources>
-            <resource>
-                <!-- Enable substitution of ${foo} maven variables in resource files. -->
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-    </build>
-
-    <dependencyManagement>
+  <dependencyManagement>
     <dependencies>
-            <!-- test dependencies -->
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.9</version>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+      <!-- test dependencies -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.9</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
 </project>
