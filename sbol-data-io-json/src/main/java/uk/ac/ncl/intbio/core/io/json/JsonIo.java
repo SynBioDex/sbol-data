@@ -2,6 +2,7 @@ package uk.ac.ncl.intbio.core.io.json;
 
 import javax.json.*;
 import javax.json.stream.JsonGenerator;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 
 import uk.ac.ncl.intbio.core.datatree.*;
@@ -74,48 +75,57 @@ public class JsonIo
 
       private void write(PropertyValue pValue)
       {
-        if (pValue instanceof Literal)
-        {
-          Literal value = (Literal) pValue;
-          write(value);
-        }
-        else if (pValue instanceof NestedDocument)
-        {
-          NestedDocument<String> doc = (NestedDocument<String>) pValue;
-          writer.writeStartObject();
-          write((IdentifiableDocument<String, PropertyValue>) doc);
-          writer.writeEnd();
-        }
-        else
-        {
-          throw new IllegalStateException("Unknown type of property value for: " + pValue);
-        }
+        new PropertyValue.Visitor<String>() {
+          @Override
+          public void visit(NestedDocument<String> v) {
+            writer.writeStartObject();
+            write((IdentifiableDocument<String, PropertyValue>) v);
+            writer.writeEnd();
+          }
+
+          @Override
+          public void visit(Literal v) {
+            write(v);
+          }
+        }.visit(pValue);
       }
 
       private void write(Literal literal)
       {
-        if (literal instanceof Literal.StringLiteral)
-        {
-          writer.write(((Literal.StringLiteral) literal).getValue());
-        }
-        else if (literal instanceof Literal.IntegerLiteral)
-        {
-          writer.write(((Literal.IntegerLiteral) literal).getValue().toString());
-        }
-        else if (literal instanceof Literal.UriLiteral)
-        {
-          Literal.UriLiteral ul = (Literal.UriLiteral) literal;
-          writer.writeStartObject().write(
-                  rdfResource,
-                  ul.getValue().toString());
-          writer.writeEnd();
-        }
+        new Literal.Visitor() {
+          @Override
+          public void visit(Literal.StringLiteral l) {
+            writer.write(l.getValue());
+          }
 
-        else
-        {
-          throw new IllegalStateException("Unknown type of literal: " + literal.getClass().getName() + " extends "
-                  + literal.getClass().getInterfaces()[0].getName());
-        }
+          @Override
+          public void visit(Literal.UriLiteral l) {
+            writer.writeStartObject().write(
+                    rdfResource,
+                    l.getValue().toString());
+            writer.writeEnd();
+          }
+
+          @Override
+          public void visit(Literal.IntegerLiteral l) {
+            writer.write(l.getValue().toString());
+          }
+
+          @Override
+          public void visit(Literal.DoubleLiteral l) {
+            writer.write(l.getValue().toString());
+          }
+
+          @Override
+          public void visit(Literal.TypedLiteral l) {
+            writer.write(l.getValue() + "^^" + l.getType().getPrefix() + ":" + l.getType().getLocalPart());
+          }
+
+          @Override
+          public void visit(Literal.BooleanLiteral l) {
+            writer.write(l.getValue().toString());
+          }
+        }.visit(literal);
       }
 
     };

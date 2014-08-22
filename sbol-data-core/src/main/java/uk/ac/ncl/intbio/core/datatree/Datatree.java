@@ -314,7 +314,7 @@ public final class Datatree
         };
     }
 
-  public static Literal.TypedLiteral Literal(final String value, final String type) {
+  public static Literal.TypedLiteral Literal(final String value, final QName type) {
     return new Literal.TypedLiteral() {
       @Override
       public String getValue() {
@@ -322,7 +322,7 @@ public final class Datatree
       }
 
       @Override
-      public String getType() {
+      public QName getType() {
         return type;
       }
     };

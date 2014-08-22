@@ -79,32 +79,59 @@ public class TurtleIo {
       }
 
       private void write(PropertyValue value) {
-        if(value instanceof Literal) {
-          Literal literal = (Literal) value;
-          write(literal);
-        } else if(value instanceof NestedDocument) {
-          NestedDocument<QName> nd = (NestedDocument<QName>) value;
-          writer.println("{");
-          pushIndent();
-          writeIndent();
-          write((IdentifiableDocument<QName, PropertyValue>) nd);
-          popIndent();
-          writeIndent();
-          writer.print("} ");
-        }
+        new PropertyValue.Visitor<QName>() {
+          @Override
+          public void visit(NestedDocument<QName> v) throws Exception {
+            writer.println("{");
+            pushIndent();
+            writeIndent();
+            write((IdentifiableDocument<QName, PropertyValue>) v);
+            popIndent();
+            writeIndent();
+            writer.print("} ");
+          }
+
+          @Override
+          public void visit(Literal v) throws Exception {
+            write(v);
+          }
+        }.visit(value);
       }
 
       private void write(Literal literal) {
-        Object value = literal.getValue();
-        if(value instanceof URI) {
-          writeURI((URI) value);
-        } else if (value instanceof String) {
-          writer.print("\"");
-          writer.print(value.toString());
-          writer.print("\"");
-        } else {
-          writer.print(value.toString());
-        }
+        new Literal.Visitor() {
+          @Override
+          public void visit(Literal.StringLiteral l) throws Exception {
+            writer.print("\"");
+            writer.print(l.getValue());
+            writer.print("\"");
+          }
+
+          @Override
+          public void visit(Literal.UriLiteral l) throws Exception {
+            writeURI(l.getValue());
+          }
+
+          @Override
+          public void visit(Literal.IntegerLiteral l) throws Exception {
+            writer.write(l.getValue().toString());
+          }
+
+          @Override
+          public void visit(Literal.DoubleLiteral l) throws Exception {
+            writer.write(l.getValue().toString());
+          }
+
+          @Override
+          public void visit(Literal.TypedLiteral l) throws Exception {
+            writer.write(l.getValue() + "^^" + l.getType().getPrefix() + ":" + l.getType().getLocalPart());
+          }
+
+          @Override
+          public void visit(Literal.BooleanLiteral l) throws Exception {
+            writer.write(l.getValue().toString());
+          }
+        }.visit(literal);
         writer.print(" ");
       }
 
@@ -299,7 +326,8 @@ public class TurtleIo {
           return Literal(Double.parseDouble(scanner.next()));
         } else if(scanner.hasNext(typed)) {
           String[] value_type = scanner.next().split("\\^\\^");
-          return Literal(value_type[0], value_type[1]);
+          String[] pfx_lcl = value_type[1].split(":", 1);
+          return Literal(value_type[0], QName(null, pfx_lcl[1], pfx_lcl[0]));
         } else if(scanner.hasNext(trueV)) {
           return Literal(true);
         } else if(scanner.hasNext(falseV)) {

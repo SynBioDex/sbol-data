@@ -33,7 +33,10 @@ public class RdfIo{
 
           writeStartElement(RDF);
           setPrefix(rdf);
-          writeNamespace(rdf);//TODO: Don't do if rdf is already in the list
+
+          if(!document.getNamespaceBindings().contains(rdf)) {
+            writeNamespace(rdf);
+          }
 
           for(NamespaceBinding nb : document.getNamespaceBindings()) {
             setPrefix(nb);
@@ -71,46 +74,65 @@ public class RdfIo{
         writer.writeEndElement();
       }
 
-      private void write(NamedProperty<QName, PropertyValue> property) throws XMLStreamException {
-        if(property.getValue() instanceof Literal) {
-          Literal value = (Literal) property.getValue();
-          if(isEmptyElementValue(value)) {
-            writeEmptyElement(property.getName());
-            write(value);
-          } else {
+      private void write(final NamedProperty<QName, PropertyValue> property) {
+        new PropertyValue.Visitor<QName>() {
+          @Override
+          public void visit(NestedDocument<QName> v) throws XMLStreamException {
             writeStartElement(property.getName());
-            write(value);
+            write(v);
             writer.writeEndElement();
           }
-        } else if(property.getValue() instanceof NestedDocument) {
-          NestedDocument<QName> doc = (NestedDocument<QName>) property.getValue();
-          writeStartElement(property.getName());
-          write(doc);
-          writer.writeEndElement();
-        } else {
-          throw new IllegalStateException("Unknown type of property value for: " + property.getValue());
-        }
+
+          @Override
+          public void visit(Literal v) throws XMLStreamException {
+            if(isEmptyElementValue(v)) {
+              writeEmptyElement(property.getName());
+              write(v);
+            } else {
+              writeStartElement(property.getName());
+              write(v);
+              writer.writeEndElement();
+            }
+          }
+        }.visit(property.getValue());
       }
 
       private boolean isEmptyElementValue(Literal literal) {
         return /* literal instanceof Literal.QNameLiteral || */ literal instanceof Literal.UriLiteral;
       }
 
-      private void write(Literal literal) throws XMLStreamException {
-        if(literal instanceof Literal.StringLiteral) {
-          writer.writeCharacters(((Literal.StringLiteral) literal).getValue());
-        } else if (literal instanceof Literal.IntegerLiteral) {
-          writer.writeCharacters(((Literal.IntegerLiteral) literal).getValue().toString());
-        }
-        else if(literal instanceof Literal.UriLiteral) {
-          Literal.UriLiteral ul = (Literal.UriLiteral) literal;
-          writeAttribute(rdfResource, ul.getValue().toString());
-        }
+      private void write(Literal literal) {
+        new Literal.Visitor() {
+          @Override
+          public void visit(Literal.StringLiteral l) throws XMLStreamException {
+            writer.writeCharacters(l.getValue());
+          }
 
-        else {
-          throw new IllegalStateException("Unknown type of literal: " + literal.getClass().getName() +
-                  " extends " + literal.getClass().getInterfaces()[0].getName());
-        }
+          @Override
+          public void visit(Literal.UriLiteral l) throws XMLStreamException {
+            writeAttribute(rdfResource, l.getValue().toString());
+          }
+
+          @Override
+          public void visit(Literal.IntegerLiteral l) throws XMLStreamException {
+            writer.writeCharacters(l.getValue().toString());
+          }
+
+          @Override
+          public void visit(Literal.DoubleLiteral l) throws XMLStreamException {
+            writer.writeCharacters(l.getValue().toString());
+          }
+
+          @Override
+          public void visit(Literal.TypedLiteral l) throws XMLStreamException {
+            writer.writeCharacters(l.getValue() + "^^" + l.getType().getPrefix() + ":" + l.getType().getLocalPart());
+          }
+
+          @Override
+          public void visit(Literal.BooleanLiteral l) throws XMLStreamException {
+            writer.writeCharacters(l.getValue().toString());
+          }
+        }.visit(literal);
       }
 
       private void writeEmptyElement(QName tagName) throws XMLStreamException {
