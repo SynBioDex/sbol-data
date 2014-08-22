@@ -3,10 +3,11 @@ package uk.ac.ncl.intbio.examples;
 import javax.xml.namespace.QName;
 
 import uk.ac.ncl.intbio.core.datatree.NamespaceBinding;
+import static uk.ac.ncl.intbio.core.datatree.Datatree.NamespaceBinding;
 
 public class Sbol2Terms
 {
-	  public static final NamespaceBinding sbol2 = new NamespaceBinding("http://sbols.org/v2#", "sbol2");
+	  public static final NamespaceBinding sbol2 = NamespaceBinding("http://sbols.org/v2#", "sbol2");
 	  
 	  
 	  

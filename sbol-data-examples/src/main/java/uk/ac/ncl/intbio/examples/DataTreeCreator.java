@@ -17,10 +17,10 @@ import static uk.ac.ncl.intbio.core.schema.Schema.*;
 
 public class DataTreeCreator {
 
-  public static final NamespaceBinding partsRegistry = new NamespaceBinding("http://partsregistry.org/", "pr");
-  public static final NamespaceBinding sbolExample = new NamespaceBinding("http://sbolstandard.org/example#", "example");
-  public static final NamespaceBinding obo = new NamespaceBinding("http://purl.obolibrary.org/obo/", "obo");
-  public static final NamespaceBinding utah = new NamespaceBinding("http://www.async.ece.utah.edu/", "utah");
+  public static final NamespaceBinding partsRegistry = NamespaceBinding("http://partsregistry.org/", "pr");
+  public static final NamespaceBinding sbolExample = NamespaceBinding("http://sbolstandard.org/example#", "example");
+  public static final NamespaceBinding obo = NamespaceBinding("http://purl.obolibrary.org/obo/", "obo");
+  public static final NamespaceBinding utah = NamespaceBinding("http://www.async.ece.utah.edu/", "utah");
 
   private static String dctermsNS = "http://purl.org/dc/terms/";
   private static String dctermsPF = "dcterms";

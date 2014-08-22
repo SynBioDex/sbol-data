@@ -2,6 +2,7 @@ package uk.ac.ncl.intbio.core.io.rdf;
 
 import javax.xml.namespace.QName;
 
+import static uk.ac.ncl.intbio.core.datatree.Datatree.NamespaceBinding;
 import uk.ac.ncl.intbio.core.datatree.DocumentRoot;
 import uk.ac.ncl.intbio.core.datatree.NamespaceBinding;
 /**
@@ -14,7 +15,7 @@ public class RdfTerms
 	/**
 	 * The {@link NamespaceBinding} object for the RDF namespace and its prefix.  
 	 */
-	  public static final NamespaceBinding rdf = new NamespaceBinding("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf");
+	  public static final NamespaceBinding rdf = NamespaceBinding("http://www.w3.org/1999/02/22-rdf-syntax-ns#", "rdf");
 	  
 	  /**
 	   * The "RDF" term to represent RDF documents
