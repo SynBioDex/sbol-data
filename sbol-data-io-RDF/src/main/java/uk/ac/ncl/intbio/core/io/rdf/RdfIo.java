@@ -23,7 +23,7 @@ import static uk.ac.ncl.intbio.core.io.rdf.RdfTerms.*;
  * The IO layer to read and write {@link DocumentRoot}s using RDF/XML.
  * <p>
  * Documents are serialised using nesting, in which {@link TopLevelDocument}s embed {@link NestedDocument}s. 
- * <br/>
+ * <br></br>
  * Both {@link TopLevelDocument}s and {@link NestedDocument}s are represented as RDF resources, and 
  * {@link NamedProperty} objects are serialised as statements for these RDF resources. 
  * </p>
@@ -36,7 +36,7 @@ public class RdfIo{
    * <p>This {@link IoWriter} provides a method to write {@link DocumentRoot} objects in RDF/XML format. 
    * During the serialisation, the RDF namespace is added if it is not provided in the {@link NamespaceBinding}s property of a {@link DocumentRoot}.
    * </p>
-   * @param writer The {@link XMLStreamWriter} writer to serialise a {@link DocumentRoot}
+   * @param writer The {@link XMLStreamWriter} writer to serialise a {@link DocumentRoot}.
    * @return {@link IoWriter}
    */
   public IoWriter<QName> createIoWriter(final XMLStreamWriter writer)
@@ -181,11 +181,11 @@ public class RdfIo{
   }
   
   /**
-   * Creates an {@link IoReader} using the given {@link XMLStreamReader}
+   * Creates an {@link IoReader} using the given {@link XMLStreamReader}.
    * <p>
    * This {@link IoReader} provides a method to read data in RDF/XML format and deserialise it into a {@link DocumentRoot} object.
    * </p>
-   * @param xmlReader The {@link XMLStreamReader} reader to read RDF/XML data
+   * @param xmlReader The {@link XMLStreamReader} reader to read RDF/XML data.
    * @return {@link IoReader}
    * @throws XMLStreamException
    */
@@ -239,33 +239,33 @@ public class RdfIo{
        * become available The stack object holds one TopLevelDocument at a
        * time. Once a TopLevelDocument is read it is added to the
        * topLevelDocuments collection. For triples within a
-       * TopLevelDocument the following rules apply:<br/>
+       * TopLevelDocument the following rules apply:<br></br>
        * Starting tags:
        * <p>
-       * <br/>
+       * <br></br>
        * If a triple contains rdf:about attribute it is assumed that the
        * tag is the start of a NestedDocument. An empty Nested document is
-       * added to the stack <br/>
+       * added to the stack <br></br>
        * If a triple contains rdf:resource, a NamedProperty with a URI
-       * value is created and added to the stack <br/>
+       * value is created and added to the stack <br></br>
        * Otherwise a NamedProperty without a value is added to the stack
        * </p>
-       * <br/>
+       * <br></br>
        * End tags:
        * <p>
-       * For each end tag, an object is taken from the stack. <br/>
+       * For each end tag, an object is taken from the stack. <br></br>
        * If the object is a property The property is removed from the
        * stack The XML value (if the value exists) is used to set the
        * value of that property. The property is then added to the recent
        * document in the stack. This document can be a NestedDocument or a
-       * TopLevelDocument <br/>
+       * TopLevelDocument <br></br>
        * If the object is a NestedDocument, the document is removed from
        * the stack. The property identifying the document in this case is
        * the most recent object in the stack and it is also removed from
        * the stack. The NestedDocument is then added to the parent
        * document (it can be a another NestedDocument or a
        * TopLevelDocument using the property relationship. This parent
-       * document is the most recent object after removing the property.<br/>
+       * document is the most recent object after removing the property.<br></br>
        * If the object is TopLevelDocument, the object is removed from the
        * stack and added to the topLevelDocuments collection
        * </p>
