@@ -296,6 +296,15 @@ public final class Datatree
         };
     }
 
+  public static Literal.DoubleLiteral Literal(final double value) {
+    return new Literal.DoubleLiteral() {
+      @Override
+      public Double getValue() {
+        return value;
+      }
+    };
+  }
+
     public static Literal.UriLiteral Literal(final URI value) {
         return new Literal.UriLiteral() {
             @Override
@@ -304,6 +313,20 @@ public final class Datatree
             }
         };
     }
+
+  public static Literal.TypedLiteral Literal(final String value, final String type) {
+    return new Literal.TypedLiteral() {
+      @Override
+      public String getValue() {
+        return value;
+      }
+
+      @Override
+      public String getType() {
+        return type;
+      }
+    };
+  }
 
     public static Literal.BooleanLiteral Literal(final boolean value) {
         return new Literal.BooleanLiteral() {

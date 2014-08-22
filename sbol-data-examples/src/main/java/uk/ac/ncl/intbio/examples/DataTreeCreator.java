@@ -18,7 +18,9 @@ import static uk.ac.ncl.intbio.core.schema.Schema.*;
 public class DataTreeCreator {
 
   public static final NamespaceBinding partsRegistry = new NamespaceBinding("http://partsregistry.org/", "pr");
-  public static final NamespaceBinding sbolExample = new NamespaceBinding("http://sbolstandard.org/example#", "sbolexample");
+  public static final NamespaceBinding sbolExample = new NamespaceBinding("http://sbolstandard.org/example#", "example");
+  public static final NamespaceBinding obo = new NamespaceBinding("http://purl.obolibrary.org/obo/", "obo");
+  public static final NamespaceBinding utah = new NamespaceBinding("http://www.async.ece.utah.edu/", "utah");
 
   private static String dctermsNS = "http://purl.org/dc/terms/";
   private static String dctermsPF = "dcterms";
@@ -154,6 +156,7 @@ public class DataTreeCreator {
             NamedProperties(
                     NamedProperty(Sbol2Terms.documented.name, "TetR Transcription Translation"),
                     NamedProperty(RdfTerms.rdfType, URI.create("http://purl.obolibrary.org/obo/genetic_production")),
+                    NamedProperty(RdfTerms.rdfType, URI.create("http://made.up.terms.org/unicorns")),
                     NamedProperty(Sbol2Terms.module.hasParticipation,
                             NestedDocument(
                                     Sbol2Terms.module.participation,
@@ -190,6 +193,7 @@ public class DataTreeCreator {
 
 
     TopLevelDocument<QName> modelLacIInverter=TopLevelDocument(
+            NamespaceBindings(utah),
             Sbol2Terms.model.model,
             sbolExample.namespacedUri("model/LacI_inverter"),
             NamedProperties(
@@ -220,7 +224,7 @@ public class DataTreeCreator {
     );
 
     return DocumentRoot(
-            NamespaceBindings(SbolTerms.sbol2),
+            NamespaceBindings(RdfTerms.rdf, SbolTerms.sbol2, partsRegistry, sbolExample, obo),
             TopLevelDocuments(moduleLacIInverter,modelLacIInverter),
             Datatree.LiteralProperties(NamedLiteralProperty(QName(dctermsNS, "creator", dctermsPF), "Goksel Misirli"))
     );
