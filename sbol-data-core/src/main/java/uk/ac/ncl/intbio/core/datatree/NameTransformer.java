@@ -4,9 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Transform a datatree into a new one, rewriting all names.
+ *
+ * <p>
+ *   To use this, subclass and implement {@link #transformName(Object)}.
+ * </p>
+ *
+ * <p>
+ *   This is intended for advanced users. In most cases, there will be canned implementations provided by libraries
+ *   where needed.
+ * </p>
+ *
  * @author Matthew Pocock
+ * @param <From>    the original name type
+ * @param <To>      the new name type
  */
 public abstract class NameTransformer<From, To> {
+  /**
+   * The name transformation function.
+   *
+   * @param f name to transform
+   * @return  the transformed name
+   */
   public abstract To transformName(From f);
 
   public DocumentRoot<To> mapDR(DocumentRoot<From> f) {
@@ -68,7 +87,7 @@ public abstract class NameTransformer<From, To> {
     }
   }
 
-  private NestedDocument<To> mapND(NestedDocument<From> f) {
+  public NestedDocument<To> mapND(NestedDocument<From> f) {
     return Datatree.NestedDocument(
             transformName(f.getType()),
             f.getIdentity(),
