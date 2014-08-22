@@ -68,15 +68,6 @@ public abstract class NameTransformer<From, To> {
     }
   }
 
-  private Datatree.NestedDocuments<To> mapNDs(Datatree.NestedDocuments<From> fs) {
-    return Datatree.NestedDocuments(mapL(fs.getDocuments(), new Func<NestedDocument<From>, NestedDocument<To>>() {
-      @Override
-      public NestedDocument<To> apply(NestedDocument<From> f) {
-        return mapND(f);
-      }
-    }));
-  }
-
   private NestedDocument<To> mapND(NestedDocument<From> f) {
     return Datatree.NestedDocument(
             transformName(f.getType()),
