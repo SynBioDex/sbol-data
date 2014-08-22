@@ -19,8 +19,23 @@ import uk.ac.ncl.intbio.core.io.IoReader;
 import uk.ac.ncl.intbio.core.io.IoWriter;
 import static uk.ac.ncl.intbio.core.io.rdf.RdfTerms.*;
 
+/** 
+ * The IO layer for writing/reading a {@link DocumentRoot} using RDF/XML.
+ * Documents are serialised using nesting, in which TopLevelDocuments embed NestedDocuments. 
+ * Both TopLevelDocumens and NestedDocuments are represented as RDF resources, and 
+ * NamedProperties are serialised as statements for these RDF resources. 
+ */
 public class RdfIo{
-
+  
+  /**
+   * Creates an IOWriter using the given XML writer.
+   * 
+   * <p>This IOWriter provides a method to serialise {@link DocumentRoot} objects in RDF/XML format. 
+   * During the serialisation, the RDF namespace is added if it is not provided in the NameSpaceBindings for a DocumentRoot.
+   * </p>
+   * @param writer The {@link XMLStreamWriter} writer to serialise a {@link DocumentRoot}
+   * @return {@link IoWriter<QName>}
+   */
   public IoWriter<QName> createIoWriter(final XMLStreamWriter writer)
   {
     return new IoWriter<QName>() {
@@ -161,7 +176,16 @@ public class RdfIo{
 
     };
   }
-
+  
+  /**
+   * Creates an IOReader using the given {@link XMLStreamReader}
+   * <p>
+   * This IOReader provides a method to read data in RDF/XML format and deserialise it into a {@link DocumentRoot} object.
+   * </p>
+   * @param xmlReader The {@link XMLStreamReader} reader to read RDF/XML data
+   * @return {@link IoReader<QName>}
+   * @throws XMLStreamException
+   */
   public IoReader<QName> createIoReader(final XMLStreamReader xmlReader) throws XMLStreamException
   {
     return new IoReader<QName>() {
