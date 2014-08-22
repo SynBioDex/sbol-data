@@ -92,7 +92,7 @@ public final class Datatree
         return new TLD();
     }
 
-    public static interface NestedDocuments<N>  extends PropertyValue {
+    public static interface NestedDocuments<N> {
         public List<NestedDocument<N>> getDocuments();
     }
 
@@ -264,10 +264,10 @@ public final class Datatree
         return NamedProperty(name, Literal(value));
     }
 
-    public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final NestedDocuments<N> value) {
+    public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final NestedDocument<N> value) {
         return new NamedProperty<N, PropertyValue>() {
             @Override
-            public NestedDocuments<N> getValue() {
+            public NestedDocument<N> getValue() {
                 return value;
             }
 
@@ -296,6 +296,15 @@ public final class Datatree
         };
     }
 
+  public static Literal.DoubleLiteral Literal(final double value) {
+    return new Literal.DoubleLiteral() {
+      @Override
+      public Double getValue() {
+        return value;
+      }
+    };
+  }
+
     public static Literal.UriLiteral Literal(final URI value) {
         return new Literal.UriLiteral() {
             @Override
@@ -304,6 +313,20 @@ public final class Datatree
             }
         };
     }
+
+  public static Literal.TypedLiteral Literal(final String value, final QName type) {
+    return new Literal.TypedLiteral() {
+      @Override
+      public String getValue() {
+        return value;
+      }
+
+      @Override
+      public QName getType() {
+        return type;
+      }
+    };
+  }
 
     public static Literal.BooleanLiteral Literal(final boolean value) {
         return new Literal.BooleanLiteral() {
