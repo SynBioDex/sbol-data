@@ -6,5 +6,5 @@ package uk.ac.ncl.intbio.core.datatree;
  * @author Matthew Pocock
  * @param <N>   the property name type
  */
-public interface NestedDocument<N> extends IdentifiableDocument<N, PropertyValue>, PropertyValue  {
+public interface NestedDocument<N> extends IdentifiableDocument<N>, PropertyValue<N>  {
 }

@@ -17,15 +17,4 @@ public interface Func<F, R> {
    * @return    the result
    */
   public R apply(F f);
-
-    public static final class impl {
-        public static <F> Func<F, String> _toString() {
-            return new Func<F, String>() {
-                @Override
-                public String apply(F f) {
-                    return f.toString();
-                }
-            };
-        }
-    }
 }

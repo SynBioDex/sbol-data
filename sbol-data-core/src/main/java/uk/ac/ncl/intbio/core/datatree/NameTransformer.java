@@ -31,8 +31,7 @@ public abstract class NameTransformer<From, To> {
   public DocumentRoot<To> mapDR(DocumentRoot<From> f) {
     return Datatree.DocumentRoot(
             Datatree.NamespaceBindings(f.getNamespaceBindings()),
-            Datatree.TopLevelDocuments(mapTLDs(f.getTopLevelDocuments())),
-            Datatree.LiteralProperties(mapLPs(f.getProperties())));
+            Datatree.TopLevelDocuments(mapTLDs(f.getTopLevelDocuments())));
   }
 
   public List<TopLevelDocument<To>> mapTLDs(List<TopLevelDocument<From>> fs) {
@@ -50,40 +49,25 @@ public abstract class NameTransformer<From, To> {
             Datatree.NamedProperties(mapVPs(f.getProperties())));
   }
 
-
-  public List<NamedProperty<To, Literal>> mapLPs(List<NamedProperty<From, Literal>> fs) {
-    return mapL(fs, new Func<NamedProperty<From, Literal>, NamedProperty<To, Literal>>() {
-      @Override
-      public NamedProperty<To, Literal> apply(NamedProperty<From, Literal> f) {
-        return mapLP(f);
-      }
-    });
-  }
-
-  public NamedProperty<To, Literal> mapLP(NamedProperty<From, Literal> f) {
-    return Datatree.NamedLiteralProperty(transformName(f.getName()), f.getValue());
-  }
-
-
-  public List<NamedProperty<To, PropertyValue>> mapVPs(List<NamedProperty<From, PropertyValue>> fs) {
-    return mapL(fs, new Func<NamedProperty<From, PropertyValue>, NamedProperty<To, PropertyValue>>() {
+  public List<NamedProperty<To>> mapVPs(List<NamedProperty<From>> fs) {
+    return mapL(fs, new Func<NamedProperty<From>, NamedProperty<To>>() {
       @Override
       @SuppressWarnings("unchecked")
-      public NamedProperty<To, PropertyValue> apply(NamedProperty<From, PropertyValue> f) {
+      public NamedProperty<To> apply(NamedProperty<From> f) {
         return mapVP(f);
       }
     });
   }
 
-  public NamedProperty<To, PropertyValue> mapVP(NamedProperty<From, PropertyValue> f) {
+  public NamedProperty<To> mapVP(NamedProperty<From> f) {
     return Datatree.NamedProperty(transformName(f.getName()), mapV(f.getValue()));
   }
 
-  public PropertyValue mapV(PropertyValue f) {
+  public PropertyValue<To> mapV(PropertyValue<From> f) {
     if(f instanceof NestedDocument) {
       return mapND((NestedDocument<From>) f);
     } else {
-      return f;
+      return (Literal<To>) f; // a naughty little cast
     }
   }
 

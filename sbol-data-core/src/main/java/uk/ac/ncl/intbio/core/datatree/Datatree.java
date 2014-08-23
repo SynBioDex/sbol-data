@@ -46,8 +46,8 @@ public final class Datatree
    *   Used by:
    * </p>
    * <ul>
-   *   <li>{@link #DocumentRoot(uk.ac.ncl.intbio.core.datatree.Datatree.NamespaceBindings, uk.ac.ncl.intbio.core.datatree.Datatree.TopLevelDocuments, uk.ac.ncl.intbio.core.datatree.Datatree.NamedProperties)}</li>
-   *   <li>{@link #DocumentRoot(uk.ac.ncl.intbio.core.datatree.Datatree.TopLevelDocuments, uk.ac.ncl.intbio.core.datatree.Datatree.NamedProperties)}</li>
+   *   <li>{@link #DocumentRoot(uk.ac.ncl.intbio.core.datatree.Datatree.NamespaceBindings, uk.ac.ncl.intbio.core.datatree.Datatree.TopLevelDocuments)}</li>
+   *   <li>{@link #DocumentRoot(uk.ac.ncl.intbio.core.datatree.Datatree.TopLevelDocuments)}</li>
    * </ul>
    *
    * @author Matthew Pocock
@@ -151,7 +151,7 @@ public final class Datatree
   }
 
   /**
-   * A list of {@NamedProperty}s.
+   * A list of {@link NamedProperty}s.
    *
    * <p>Used by</p>
    * <ul>
@@ -167,10 +167,9 @@ public final class Datatree
    *
    * @author Matthew Pocock
    * @param <N>   the property name type
-   * @param <P>   tye property value type
    */
-  public static interface NamedProperties<N, P extends PropertyValue> {
-    public List<NamedProperty<N, P>> getProperties();
+  public static interface NamedProperties<N> {
+    public List<NamedProperty<N>> getProperties();
   }
 
   /**
@@ -185,7 +184,7 @@ public final class Datatree
    * @return    a new NamedProperties wrapping the properties
    */
   @SafeVarargs
-  public static <N> NamedProperties<N, PropertyValue> NamedProperties(final NamedProperty<N, PropertyValue> ... properties) {
+  public static <N> NamedProperties<N> NamedProperties(final NamedProperty<N> ... properties) {
     return NamedProperties(Arrays.asList(properties));
   }
 
@@ -200,49 +199,13 @@ public final class Datatree
    * @param properties  properties list
    * @return    a new NamedProperties wrapping the properties
    */
-  public static <N> NamedProperties<N, PropertyValue> NamedProperties(final List<NamedProperty<N, PropertyValue>> properties) {
-    return new NamedProperties<N, PropertyValue>() {
+  public static <N> NamedProperties<N> NamedProperties(final List<NamedProperty<N>> properties) {
+    return new NamedProperties<N>() {
       @Override
-      public List<NamedProperty<N, PropertyValue>> getProperties() {
+      public List<NamedProperty<N>> getProperties() {
         return properties;
       }
     };
-  }
-
-  /**
-   * Factory for {@link NamedProperties}.
-   *
-   * <p>
-   *   Used by {@link uk.ac.ncl.intbio.core.datatree.TopLevelDocument}
-   *   factory methods.
-   * </p>
-   *
-   * @param properties  properties list
-   * @return    a new NamedProperties wrapping the properties
-   */
-  public static <N> NamedProperties<N, Literal> LiteralProperties(final List<NamedProperty<N, Literal>> properties) {
-    return new NamedProperties<N, Literal>() {
-      @Override
-      public List<NamedProperty<N, Literal>> getProperties() {
-        return properties;
-      }
-    };
-  }
-
-  /**
-   * Factory for {@link NamedProperties}.
-   *
-   * <p>
-   *   Used by {@link uk.ac.ncl.intbio.core.datatree.TopLevelDocument}
-   *   factory methods.
-   * </p>
-   *
-   * @param properties  properties
-   * @return    a new NamedProperties wrapping the properties
-   */
-  @SafeVarargs
-  public static <N> NamedProperties<N, Literal> LiteralProperties(final NamedProperty<N, Literal> ... properties) {
-    return LiteralProperties(Arrays.asList(properties));
   }
 
   /**
@@ -260,7 +223,7 @@ public final class Datatree
    */
   public static <N> TopLevelDocument<N> TopLevelDocument(final N type,
                                                          final URI identity,
-                                                         final NamedProperties<N, PropertyValue> properties) {
+                                                         final NamedProperties<N> properties) {
     return TopLevelDocument(NamespaceBindings(), type, identity, properties);
   }
 
@@ -281,8 +244,8 @@ public final class Datatree
   public static <N> TopLevelDocument<N> TopLevelDocument(final NamespaceBindings bindings,
                                                          final N type,
                                                          final URI identity,
-                                                         final NamedProperties<N, PropertyValue> properties) {
-    class TLD extends Document.Abstract<N, PropertyValue> implements TopLevelDocument<N> {
+                                                         final NamedProperties<N> properties) {
+    class TLD extends IdentifiableDocument.Abstract<N> implements TopLevelDocument<N> {
       @Override
       public N getType() {
         return type;
@@ -294,7 +257,7 @@ public final class Datatree
       }
 
       @Override
-      public List<NamedProperty<N, PropertyValue>> getProperties() {
+      public List<NamedProperty<N>> getProperties() {
         if (properties!=null)
         {
           return properties.getProperties();
@@ -330,7 +293,7 @@ public final class Datatree
    */
   public static <N> NestedDocument<N> NestedDocument(final N type,
                                                      final URI identity,
-                                                     final NamedProperties<N, PropertyValue> properties) {
+                                                     final NamedProperties<N> properties) {
     return NestedDocument(NamespaceBindings(), type, identity, properties);
   }
 
@@ -351,9 +314,9 @@ public final class Datatree
   public static <N> NestedDocument<N> NestedDocument(final NamespaceBindings bindings,
                                                      final N type,
                                                      final URI identity,
-                                                     final NamedProperties<N, PropertyValue> properties)
+                                                     final NamedProperties<N> properties)
   {
-    class ND extends Document.Abstract<N, PropertyValue> implements NestedDocument<N>
+    class ND extends IdentifiableDocument.Abstract<N> implements NestedDocument<N>
     {
       @Override
       public N getType()
@@ -368,7 +331,7 @@ public final class Datatree
       }
 
       @Override
-      public List<NamedProperty<N, PropertyValue>> getProperties()
+      public List<NamedProperty<N>> getProperties()
       {
         if (properties!=null)
         {
@@ -398,13 +361,11 @@ public final class Datatree
    * </p>
    *
    * @param documents   the top-level documents
-   * @param properties  the root properties
    * @param <N>         the property name type
    * @return  a new DocumentRoot instance
    */
-  public static <N> DocumentRoot<N> DocumentRoot(final TopLevelDocuments<N> documents,
-                                                 final NamedProperties<N, Literal> properties) {
-    return DocumentRoot(NamespaceBindings(), documents, properties);
+  public static <N> DocumentRoot<N> DocumentRoot(final TopLevelDocuments<N> documents) {
+    return DocumentRoot(NamespaceBindings(), documents);
   }
 
   /**
@@ -416,23 +377,16 @@ public final class Datatree
    *
    * @param bindings    the namespace bindings
    * @param documents   the top-level documents
-   * @param properties  the root properties
    * @param <N>         the property name type
    * @return  a new DocumentRoot instance
    */
   public static <N> DocumentRoot<N> DocumentRoot(
           final NamespaceBindings bindings,
-          final TopLevelDocuments<N> documents,
-          final NamedProperties<N, Literal> properties) {
-    class DR extends Document.Abstract<N, Literal> implements DocumentRoot<N> {
+          final TopLevelDocuments<N> documents) {
+    class DR implements DocumentRoot<N> {
       @Override
       public List<TopLevelDocument<N>> getTopLevelDocuments() {
         return documents.getDocuments();
-      }
-
-      @Override
-      public List<NamedProperty<N, Literal>> getProperties() {
-        return properties.getProperties();
       }
 
       @Override
@@ -445,28 +399,6 @@ public final class Datatree
   }
 
   /**
-   * Create a literal property from a literal value.
-   *
-   * @param name    the property name
-   * @param value   the property value
-   * @param <N>     the property name type
-   * @return  a new NamedProperty with the supplied name and value
-   */
-  public static <N> NamedProperty<N, Literal> NamedLiteralProperty(final N name, final Literal value) {
-    return new NamedProperty<N, Literal>() {
-      @Override
-      public Literal getValue() {
-        return value;
-      }
-
-      @Override
-      public N getName() {
-        return name;
-      }
-    };
-  }
-
-  /**
    * Create a value property from a literal value.
    *
    * @param name    the property name
@@ -474,10 +406,10 @@ public final class Datatree
    * @param <N>     the property name type
    * @return  a new NamedProperty with the supplied name and value
    */
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final PropertyValue value) {
-    return new NamedProperty<N, PropertyValue>() {
+  public static <N> NamedProperty<N> NamedProperty(final N name, final PropertyValue<N> value) {
+    return new NamedProperty<N>() {
       @Override
-      public PropertyValue getValue() {
+      public PropertyValue<N> getValue() {
         return value;
       }
 
@@ -486,18 +418,6 @@ public final class Datatree
         return name;
       }
     };
-  }
-
-  /**
-   * Create a literal property from a string value.
-   *
-   * @param name    the property name
-   * @param value   the property value
-   * @param <N>     the property name type
-   * @return  a new NamedProperty with the supplied name and value
-   */
-  public static <N> NamedProperty<N, Literal> NamedLiteralProperty(final N name, final String value) {
-    return NamedLiteralProperty(name, Literal(value));
   }
 
   /**
@@ -508,8 +428,8 @@ public final class Datatree
    * @param <N>     the property name type
    * @return  a new NamedProperty with the supplied name and value
    */
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final String value) {
-    return NamedProperty(name, Literal(value));
+  public static <N> NamedProperty<N> NamedProperty(final N name, final String value) {
+    return NamedProperty(name, Datatree.<N>Literal(value));
   }
 
   /**
@@ -520,8 +440,8 @@ public final class Datatree
    * @param <N>     the property name type
    * @return  a new NamedProperty with the supplied name and value
    */
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final int value) {
-    return NamedProperty(name, Literal(value));
+  public static <N> NamedProperty<N> NamedProperty(final N name, final int value) {
+    return NamedProperty(name, Datatree.<N>Literal(value));
   }
 
   /**
@@ -532,8 +452,8 @@ public final class Datatree
    * @param <N>     the property name type
    * @return  a new NamedProperty with the supplied name and value
    */
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final URI value) {
-    return NamedProperty(name, Literal(value));
+  public static <N> NamedProperty<N> NamedProperty(final N name, final URI value) {
+    return NamedProperty(name, Datatree.<N>Literal(value));
   }
 
   /**
@@ -544,8 +464,8 @@ public final class Datatree
    * @param <N>     the property name type
    * @return  a new NamedProperty with the supplied name and value
    */
-  public static <N> NamedProperty<N, PropertyValue> NamedProperty(final N name, final NestedDocument<N> value) {
-    return new NamedProperty<N, PropertyValue>() {
+  public static <N> NamedProperty<N> NamedProperty(final N name, final NestedDocument<N> value) {
+    return new NamedProperty<N>() {
       @Override
       public NestedDocument<N> getValue() {
         return value;
@@ -564,8 +484,8 @@ public final class Datatree
    * @param value   the property value
    * @return  a new NamedProperty with the supplied name and value
    */
-  public static Literal.StringLiteral Literal(final String value) {
-    return new Literal.StringLiteral() {
+  public static <N> Literal.StringLiteral<N> Literal(final String value) {
+    return new Literal.StringLiteral<N>() {
       @Override
       public String getValue() {
         return value;
@@ -579,8 +499,8 @@ public final class Datatree
    * @param value   the property value
    * @return  a new NamedProperty with the supplied name and value
    */
-  public static Literal.IntegerLiteral Literal(final int value) {
-    return new Literal.IntegerLiteral() {
+  public static <N> Literal.IntegerLiteral<N> Literal(final int value) {
+    return new Literal.IntegerLiteral<N>() {
       @Override
       public Integer getValue() {
         return value;
@@ -594,8 +514,8 @@ public final class Datatree
    * @param value   the property value
    * @return  a new NamedProperty with the supplied name and value
    */
-  public static Literal.DoubleLiteral Literal(final double value) {
-    return new Literal.DoubleLiteral() {
+  public static <N> Literal.DoubleLiteral<N> Literal(final double value) {
+    return new Literal.DoubleLiteral<N>() {
       @Override
       public Double getValue() {
         return value;
@@ -609,8 +529,8 @@ public final class Datatree
    * @param value   the property value
    * @return  a new NamedProperty with the supplied name and value
    */
-  public static Literal.UriLiteral Literal(final URI value) {
-    return new Literal.UriLiteral() {
+  public static <N> Literal.UriLiteral<N> Literal(final URI value) {
+    return new Literal.UriLiteral<N>() {
       @Override
       public URI getValue() {
         return value;
@@ -624,8 +544,8 @@ public final class Datatree
    * @param value   the property value
    * @return  a new NamedProperty with the supplied name and value
    */
-  public static Literal.TypedLiteral Literal(final String value, final QName type) {
-    return new Literal.TypedLiteral() {
+  public static <N> Literal.TypedLiteral<N> Literal(final String value, final QName type) {
+    return new Literal.TypedLiteral<N>() {
       @Override
       public String getValue() {
         return value;
@@ -644,8 +564,8 @@ public final class Datatree
    * @param value   the property value
    * @return  a new NamedProperty with the supplied name and value
    */
-  public static Literal.BooleanLiteral Literal(final boolean value) {
-    return new Literal.BooleanLiteral() {
+  public static <N> Literal.BooleanLiteral<N> Literal(final boolean value) {
+    return new Literal.BooleanLiteral<N>() {
       @Override
       public Boolean getValue() {
         return value;

@@ -6,5 +6,5 @@ package uk.ac.ncl.intbio.core.datatree;
  * @author Matthew Pocock
  * @param <N>   the property name type
  */
-public interface TopLevelDocument<N> extends IdentifiableDocument<N, PropertyValue> {
+public interface TopLevelDocument<N> extends IdentifiableDocument<N> {
 }

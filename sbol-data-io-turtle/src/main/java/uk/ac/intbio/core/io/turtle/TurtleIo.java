@@ -48,8 +48,6 @@ public class TurtleIo {
         write(document.getNamespaceBindings());
         pushBindings(document.getNamespaceBindings());
 
-//        todo: implement whole-document properties
-//        document.getProperties()
         for (TopLevelDocument<QName> doc : document.getTopLevelDocuments()) {
           write(doc);
         }
@@ -57,7 +55,7 @@ public class TurtleIo {
         popBindings();
       }
 
-      private void write(IdentifiableDocument<QName, PropertyValue> doc) {
+      private void write(IdentifiableDocument<QName> doc) {
         writeURI(doc.getIdentity());
         writer.println();
         pushIndent();
@@ -65,7 +63,7 @@ public class TurtleIo {
         pushBindings(doc.getNamespaceBindings());
         writeType(doc.getType());
 
-        for (NamedProperty<QName, PropertyValue> prop : doc.getProperties()) {
+        for (NamedProperty<QName> prop : doc.getProperties()) {
           writer.println(";");
           writeIndent();
           writeQName(prop.getName());
@@ -78,57 +76,57 @@ public class TurtleIo {
         popBindings();
       }
 
-      private void write(PropertyValue value) {
+      private void write(PropertyValue<QName> value) {
         new PropertyValue.Visitor<QName>() {
           @Override
           public void visit(NestedDocument<QName> v) throws Exception {
             writer.println("{");
             pushIndent();
             writeIndent();
-            write((IdentifiableDocument<QName, PropertyValue>) v);
+            write((IdentifiableDocument<QName>) v);
             popIndent();
             writeIndent();
             writer.print("} ");
           }
 
           @Override
-          public void visit(Literal v) throws Exception {
+          public void visit(Literal<QName> v) throws Exception {
             write(v);
           }
         }.visit(value);
       }
 
-      private void write(Literal literal) {
-        new Literal.Visitor() {
+      private void write(Literal<QName> literal) {
+        new Literal.Visitor<QName>() {
           @Override
-          public void visit(Literal.StringLiteral l) throws Exception {
+          public void visit(Literal.StringLiteral<QName> l) throws Exception {
             writer.print("\"");
             writer.print(l.getValue());
             writer.print("\"");
           }
 
           @Override
-          public void visit(Literal.UriLiteral l) throws Exception {
+          public void visit(Literal.UriLiteral<QName> l) throws Exception {
             writeURI(l.getValue());
           }
 
           @Override
-          public void visit(Literal.IntegerLiteral l) throws Exception {
+          public void visit(Literal.IntegerLiteral<QName> l) throws Exception {
             writer.write(l.getValue().toString());
           }
 
           @Override
-          public void visit(Literal.DoubleLiteral l) throws Exception {
+          public void visit(Literal.DoubleLiteral<QName> l) throws Exception {
             writer.write(l.getValue().toString());
           }
 
           @Override
-          public void visit(Literal.TypedLiteral l) throws Exception {
+          public void visit(Literal.TypedLiteral<QName> l) throws Exception {
             writer.write(l.getValue() + "^^" + l.getType().getPrefix() + ":" + l.getType().getLocalPart());
           }
 
           @Override
-          public void visit(Literal.BooleanLiteral l) throws Exception {
+          public void visit(Literal.BooleanLiteral<QName> l) throws Exception {
             writer.write(l.getValue().toString());
           }
         }.visit(literal);
@@ -230,17 +228,15 @@ public class TurtleIo {
       }
 
       @Override
-      public DocumentRoot<QName> read() throws XMLStreamException {
+      public DocumentRoot<QName> read() throws CoreIoException {
         NamespaceBindings bindings = readBindings();
         pushBindings(bindings.getBindings());
         TopLevelDocuments<QName> docs = readTLDs();
-        NamedProperties<QName, Literal> props = readLiteralProperties();
         popBindings();
 
         return DocumentRoot(
                 bindings,
-                docs,
-                props
+                docs
         );
       }
 
@@ -252,7 +248,7 @@ public class TurtleIo {
           NamespaceBindings bindings = readBindings();
           pushBindings(bindings.getBindings());
 
-          List<NamedProperty<QName, PropertyValue>> properties = new ArrayList<>();
+          List<NamedProperty<QName>> properties = new ArrayList<>();
           QName type = readType();
           while (scanner.hasNext(semicolon)) {
             scanner.next(); // discard `;`
@@ -279,7 +275,7 @@ public class TurtleIo {
         NamespaceBindings bindings = readBindings();
         pushBindings(bindings.getBindings());
 
-        List<NamedProperty<QName, PropertyValue>> properties = new ArrayList<>();
+        List<NamedProperty<QName>> properties = new ArrayList<>();
         QName type = readType();
         while (scanner.hasNext(semicolon)) {
           scanner.next(); // discard `;`
@@ -296,7 +292,7 @@ public class TurtleIo {
         return NestedDocument(bindings, type, identity, NamedProperties(properties));
       }
 
-      private NamedProperty<QName, PropertyValue> readProperty() {
+      private NamedProperty<QName> readProperty() {
         QName name = readQName();
         if(scanner.hasNext(open_bracket)) {
           scanner.next(); // consume `{`
@@ -312,7 +308,7 @@ public class TurtleIo {
         }
       }
 
-      private Literal readLiteral() {
+      private Literal<QName> readLiteral() {
         if(scanner.hasNext(quoted_uri)) {
           return Literal(readQtdURI());
         } else if(scanner.hasNext(prefixed_uri)) {
@@ -379,10 +375,6 @@ public class TurtleIo {
           nss.add(NamespaceBinding(uri, pfx));
         }
         return NamespaceBindings(nss);
-      }
-
-      private NamedProperties<QName, Literal> readLiteralProperties() {
-        return LiteralProperties();
       }
     };
   }

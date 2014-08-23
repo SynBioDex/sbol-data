@@ -12,5 +12,5 @@ import java.util.Map;
  * @author Matthew Pocock
  */
 public interface DocumentStyler {
-    void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName, ? extends PropertyValue> document);
+    void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName> document);
 }

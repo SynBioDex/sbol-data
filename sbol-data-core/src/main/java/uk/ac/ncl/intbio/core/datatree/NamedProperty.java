@@ -14,15 +14,14 @@ package uk.ac.ncl.intbio.core.datatree;
  *
  *
  * @param <N>   the property name type
- * @param <P>   the value range
  */
-public interface NamedProperty<N, P extends PropertyValue> {
+public interface NamedProperty<N> {
   /**
    * Get the value of this named property.
    *
    * @return the value
    */
-	public P getValue();
+	public PropertyValue<N> getValue();
 
   /**
    * Get the name of this named property.

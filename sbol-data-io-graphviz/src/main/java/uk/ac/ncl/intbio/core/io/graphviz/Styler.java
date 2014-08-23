@@ -16,7 +16,7 @@ public class Styler {
         public static DocumentStyler all(final DocumentStyler ... stylers) {
             return new DocumentStyler() {
                 @Override
-                public void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName, ? extends PropertyValue> document) {
+                public void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName> document) {
                     for(DocumentStyler s : stylers) {
                         s.applyStyle(styleMap, document);
                     }
@@ -27,7 +27,7 @@ public class Styler {
         public static DocumentStyler apply(final MapMod mm) {
             return new DocumentStyler() {
                 @Override
-                public void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName, ? extends PropertyValue> document) {
+                public void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName> document) {
                     mm.apply(styleMap);
                 }
             };
@@ -35,7 +35,7 @@ public class Styler {
 
         public static DocumentStyler identityAsLabel = new DocumentStyler() {
             @Override
-            public void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName, ? extends PropertyValue> document) {
+            public void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName> document) {
               styleMap.put("label", document.getIdentity().toString());
             }
         };
@@ -45,7 +45,7 @@ public class Styler {
         public static LiteralStyler all(final LiteralStyler ... stylers) {
             return new LiteralStyler() {
                 @Override
-                public void applyStyle(Map<String, String> styleMap, Literal value) {
+                public void applyStyle(Map<String, String> styleMap, Literal<QName> value) {
                     for(LiteralStyler s : stylers) {
                         s.applyStyle(styleMap, value);
                     }
@@ -56,7 +56,7 @@ public class Styler {
         public static LiteralStyler apply(final MapMod mm) {
             return new LiteralStyler() {
                 @Override
-                public void applyStyle(Map<String, String> styleMap, Literal value) {
+                public void applyStyle(Map<String, String> styleMap, Literal<QName> value) {
                     mm.apply(styleMap);
                 }
             };
@@ -64,7 +64,7 @@ public class Styler {
 
         public static LiteralStyler valueAslabel = new LiteralStyler() {
             @Override
-            public void applyStyle(Map<String, String> styleMap, Literal value) {
+            public void applyStyle(Map<String, String> styleMap, Literal<QName> value) {
                 if(value instanceof Literal.StringLiteral) {
                     styleMap.put("label", prettyClip(30, value.getValue().toString()));
                 } else {
@@ -78,7 +78,11 @@ public class Styler {
         static EdgeStyler apply(final MapMod mm) {
             return new EdgeStyler() {
                 @Override
-                public void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName, ? extends PropertyValue> from, PropertyValue to, QName edgeType) {
+                public void applyStyle(Map<String, String> styleMap,
+                                       IdentifiableDocument<QName> from,
+                                       PropertyValue<QName> to,
+                                       QName edgeType)
+                {
                     mm.apply(styleMap);
                 }
             };
@@ -86,7 +90,10 @@ public class Styler {
 
         static EdgeStyler nameAsLabel = new EdgeStyler() {
             @Override
-            public void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName, ? extends PropertyValue> from, PropertyValue to, QName edgeType) {
+            public void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName> from,
+                                   PropertyValue<QName> to,
+                                   QName edgeType)
+            {
                 styleMap.put("label", edgeType.getLocalPart());
             }
         };
@@ -96,7 +103,8 @@ public class Styler {
         static LinkerStyler all(final LinkerStyler ... styles) {
             return new LinkerStyler() {
                 @Override
-                public void applyStyle(Map<String, String> styleMap, Literal.UriLiteral link) {
+                public void applyStyle(Map<String, String> styleMap,
+                                       Literal.UriLiteral<QName> link) {
                     for(LinkerStyler s : styles) {
                         s.applyStyle(styleMap, link);
                     }
@@ -107,7 +115,8 @@ public class Styler {
         static LinkerStyler apply(final MapMod mm) {
             return new LinkerStyler() {
                 @Override
-                public void applyStyle(Map<String, String> styleMap, Literal.UriLiteral link) {
+                public void applyStyle(Map<String, String> styleMap,
+                                       Literal.UriLiteral<QName> link) {
                     mm.apply(styleMap);
                 }
             };

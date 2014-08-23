@@ -25,27 +25,27 @@ public class GraphvizIo
   private EdgeStyler edgeStyler = Styler.edge.nameAsLabel;
   private LinkerStyler linkStyler = Styler.linker.all(/*Styler.linker.nonConstraint,*/ Styler.linker.dashed);
 
-  private String applyStyle(IdentifiableDocument<QName, ? extends PropertyValue> doc) {
+  private String applyStyle(IdentifiableDocument<QName> doc) {
     Map<String, String> styles = new HashMap<>();
     documentStyler.applyStyle(styles, doc);
     return flatten(styles);
   }
 
-  private String applyStyle(Literal value) {
+  private String applyStyle(Literal<QName> value) {
     Map<String, String> styles = new HashMap<>();
     literalStyler.applyStyle(styles, value);
     return flatten(styles);
   }
 
-  private String applyStyle(IdentifiableDocument<QName, ? extends PropertyValue> from,
-                            PropertyValue to,
+  private String applyStyle(IdentifiableDocument<QName> from,
+                            PropertyValue<QName> to,
                             QName name) {
     Map<String, String> styles = new HashMap<>();
     edgeStyler.applyStyle(styles, from, to, name);
     return flatten(styles);
   }
 
-  private String applyStyle(Literal.UriLiteral uriLiteral) {
+  private String applyStyle(Literal.UriLiteral<QName> uriLiteral) {
     Map<String, String> styles = new HashMap<>();
     linkStyler.applyStyle(styles, uriLiteral);
     return flatten(styles);
@@ -120,31 +120,31 @@ public class GraphvizIo
         writer.println("}");
       }
 
-      private void write(IdentifiableDocument<QName, PropertyValue> document)
+      private void write(IdentifiableDocument<QName> document)
       {
         writer.println("\"" + document.getIdentity() + "\" [" + applyStyle(document) + "];");
 
-        for (NamedProperty<QName, PropertyValue> property : document.getProperties())
+        for (NamedProperty<QName> property : document.getProperties())
         {
           write(document, property);
         }
 
         writer.print("{rank=same ");
-        for (NamedProperty<QName, PropertyValue> property : document.getProperties())
+        for (NamedProperty<QName> property : document.getProperties())
         {
-          PropertyValue pv = property.getValue();
+          PropertyValue<QName> pv = property.getValue();
           if(pv instanceof NestedDocument) {
             NestedDocument<QName> doc = (NestedDocument<QName>) pv;
             writer.print("\"" + doc.getIdentity().toString() + "\" ");
           } else {
-            Literal literal = (Literal) pv;
+            Literal<QName> literal = (Literal<QName>) pv;
             writer.print("\"" + literal.toString() + "\" ");
           }
         }
         writer.println("}");
       }
 
-      private void write(IdentifiableDocument<QName, PropertyValue> parent, NamedProperty<QName, PropertyValue> property)
+      private void write(IdentifiableDocument<QName> parent, NamedProperty<QName> property)
       {
         if (property.getValue() instanceof NestedDocument)
         {
@@ -155,20 +155,20 @@ public class GraphvizIo
         }
         else
         {
-          Literal value = (Literal) property.getValue();
+          Literal<QName> value = (Literal<QName>) property.getValue();
           writer.println("\"" + parent.getIdentity() + "\" -> \"" + value.toString() + "\" [" +
                   applyStyle(parent, value, property.getName()) + "];");
           write(value);
         }
       }
 
-      private void write(Literal literal)
+      private void write(Literal<QName> literal)
       {
         writer.println("\"" + literal.toString() + "\" [" +
                 applyStyle(literal) + "];");
 
         if(literal instanceof Literal.UriLiteral) {
-          Literal.UriLiteral uriL = (Literal.UriLiteral) literal;
+          Literal.UriLiteral<QName> uriL = (Literal.UriLiteral<QName>) literal;
 
           writer.println("\"" + uriL.toString() + "\" -> \""  + uriL.getValue().toString() + "\" [" +
                   applyStyle(uriL) + "];");

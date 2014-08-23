@@ -225,9 +225,7 @@ public class DataTreeCreator {
 
     return DocumentRoot(
             NamespaceBindings(RdfTerms.rdf, SbolTerms.sbol2, partsRegistry, sbolExample, obo),
-            TopLevelDocuments(moduleLacIInverter,modelLacIInverter),
-            Datatree.LiteralProperties(NamedLiteralProperty(QName(dctermsNS, "creator", dctermsPF), "Goksel Misirli"))
-    );
+            TopLevelDocuments(moduleLacIInverter,modelLacIInverter));
   }
 
   public static DocumentRoot<QName> makeSBOL2SequenceComponent()
@@ -283,8 +281,7 @@ public class DataTreeCreator {
 
     return DocumentRoot(
             NamespaceBindings(SbolTerms.sbol2),
-            TopLevelDocuments(lacIRepressibleGene,pLac,lacIRepressibleGeneSequence),
-            Datatree.LiteralProperties(NamedLiteralProperty(QName(dctermsNS, "creator", dctermsPF), "Goksel Misirli"))
+            TopLevelDocuments(lacIRepressibleGene,pLac,lacIRepressibleGeneSequence)
     );
   }
 
@@ -357,8 +354,7 @@ public class DataTreeCreator {
                                     NamedProperty(RdfTerms.rdfType, URI.create("http://purl.obolibrary.org/obo/SO_0000316"))
                             )
                     )
-            ),
-            Datatree.LiteralProperties(NamedLiteralProperty(QName(dctermsNS, "creator", dctermsPF), "Matthew Pocock")));
+            ));
   }
 
   public static SchemaCatalog makeCoreSchemaCatalog()

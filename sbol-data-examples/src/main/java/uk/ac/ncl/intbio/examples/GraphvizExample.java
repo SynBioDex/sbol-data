@@ -59,11 +59,11 @@ public class GraphvizExample
 
   public static DocumentStyler sbolPartTypeStyler = new DocumentStyler() {
     @Override
-    public void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName, ? extends PropertyValue> document) {
+    public void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName> document) {
       if(document.getType() == SbolTerms.dnaComponent) {
-        for(PropertyValue pv : document.getPropertyValues(RdfTerms.rdfType)) {
+        for(PropertyValue<QName> pv : document.getPropertyValues(RdfTerms.rdfType)) {
           if (pv instanceof Literal.UriLiteral) {
-            Literal.UriLiteral luri = (Literal.UriLiteral) pv;
+            Literal.UriLiteral<QName> luri = (Literal.UriLiteral<QName>) pv;
             String shape = graphvizShapeForSo.get(luri.getValue());
             if (shape != null) {
               styleMap.put("shape", shape);

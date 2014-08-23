@@ -56,15 +56,15 @@ public class JsonIo
         writer.writeEnd();
       }
 
-      private void write(IdentifiableDocument<String, PropertyValue> doc)
+      private void write(IdentifiableDocument<String> doc)
       {
         writer.writeStartObject(doc.getType());
         writer.write(rdfAbout, doc.getIdentity().toString());
 
-        for (Map.Entry<String, List<PropertyValue>> properties : cholate(doc.getProperties()).entrySet())
+        for (Map.Entry<String, List<PropertyValue<String>>> properties : cholate(doc.getProperties()).entrySet())
         {
           writer.writeStartArray(properties.getKey());
-          for(PropertyValue property : properties.getValue()) {
+          for(PropertyValue<String> property : properties.getValue()) {
             write(property);
           }
           writer.writeEnd();
@@ -73,33 +73,33 @@ public class JsonIo
         writer.writeEnd();
       }
 
-      private void write(PropertyValue pValue)
+      private void write(PropertyValue<String> pValue)
       {
         new PropertyValue.Visitor<String>() {
           @Override
           public void visit(NestedDocument<String> v) {
             writer.writeStartObject();
-            write((IdentifiableDocument<String, PropertyValue>) v);
+            write((IdentifiableDocument<String>) v);
             writer.writeEnd();
           }
 
           @Override
-          public void visit(Literal v) {
+          public void visit(Literal<String> v) {
             write(v);
           }
         }.visit(pValue);
       }
 
-      private void write(Literal literal)
+      private void write(Literal<String> literal)
       {
-        new Literal.Visitor() {
+        new Literal.Visitor<String>() {
           @Override
-          public void visit(Literal.StringLiteral l) {
+          public void visit(Literal.StringLiteral<String> l) {
             writer.write(l.getValue());
           }
 
           @Override
-          public void visit(Literal.UriLiteral l) {
+          public void visit(Literal.UriLiteral<String> l) {
             writer.writeStartObject().write(
                     rdfResource,
                     l.getValue().toString());
@@ -107,22 +107,22 @@ public class JsonIo
           }
 
           @Override
-          public void visit(Literal.IntegerLiteral l) {
+          public void visit(Literal.IntegerLiteral<String> l) {
             writer.write(l.getValue().toString());
           }
 
           @Override
-          public void visit(Literal.DoubleLiteral l) {
+          public void visit(Literal.DoubleLiteral<String> l) {
             writer.write(l.getValue().toString());
           }
 
           @Override
-          public void visit(Literal.TypedLiteral l) {
+          public void visit(Literal.TypedLiteral<String> l) {
             writer.write(l.getValue() + "^^" + l.getType().getPrefix() + ":" + l.getType().getLocalPart());
           }
 
           @Override
-          public void visit(Literal.BooleanLiteral l) {
+          public void visit(Literal.BooleanLiteral<String> l) {
             writer.write(l.getValue().toString());
           }
         }.visit(literal);
@@ -131,11 +131,11 @@ public class JsonIo
     };
   }
 
-  private Map<String, List<PropertyValue>> cholate(List<NamedProperty<String, PropertyValue>> ps) {
-    Map<String, List<PropertyValue>> res = new HashMap<>();
+  private Map<String, List<PropertyValue<String>>> cholate(List<NamedProperty<String>> ps) {
+    Map<String, List<PropertyValue<String>>> res = new HashMap<>();
 
-    for(NamedProperty<String, PropertyValue> np : ps) {
-      List<PropertyValue> pl = res.get(np.getName());
+    for(NamedProperty<String> np : ps) {
+      List<PropertyValue<String>> pl = res.get(np.getName());
       if(pl == null) {
         pl = new ArrayList<>();
       }
@@ -150,12 +150,11 @@ public class JsonIo
   {
     return new IoReader<String>() {
       @Override
-      public DocumentRoot<String> read() throws XMLStreamException {
+      public DocumentRoot<String> read() throws CoreIoException {
         switch (json.getValueType()) {
           case ARRAY:
             return Datatree.DocumentRoot(
-                    Datatree.TopLevelDocuments(readTLDs((JsonArray) json)),
-                    Datatree.<String>LiteralProperties());
+                    Datatree.TopLevelDocuments(readTLDs((JsonArray) json)));
           default:
             throw new IllegalArgumentException("Expecting json Array. Got " + json.getValueType());
         }
@@ -172,7 +171,7 @@ public class JsonIo
       public TopLevelDocument<String> readTLD(JsonObject object) {
         String type = null;
         URI identity = null;
-        List<NamedProperty<String, PropertyValue>> properties = new ArrayList<>();
+        List<NamedProperty<String>> properties = new ArrayList<>();
 
         for(Map.Entry<String, JsonValue> me : object.entrySet()) {
           type = me.getKey();
@@ -184,7 +183,7 @@ public class JsonIo
               identity = URI.create(((JsonString) nme.getValue()).getString());
             } else {
               for(JsonValue jv : (JsonArray) nme.getValue()) {
-                properties.add(Datatree.NamedProperty(nme.getKey(), readPV(jv)));
+                properties.add(Datatree.<String>NamedProperty(nme.getKey(), readPV(jv)));
               }
             }
           }
@@ -200,7 +199,7 @@ public class JsonIo
         // todo: refactor TopLevelDocument and NestedDocument to share code
         String type = null;
         URI identity = null;
-        List<NamedProperty<String, PropertyValue>> properties = new ArrayList<>();
+        List<NamedProperty<String>> properties = new ArrayList<>();
 
         for(Map.Entry<String, JsonValue> me : object.entrySet()) {
           type = me.getKey();
@@ -212,7 +211,7 @@ public class JsonIo
               identity = URI.create(((JsonString) nme.getValue()).getString());
             } else {
               for(JsonValue jv : (JsonArray) nme.getValue()) {
-                properties.add(Datatree.NamedProperty(nme.getKey(), readPV(jv)));
+                properties.add(Datatree.<String>NamedProperty(nme.getKey(), readPV(jv)));
               }
             }
           }
@@ -224,7 +223,7 @@ public class JsonIo
                 Datatree.NamedProperties(properties));
       }
 
-      public PropertyValue readPV(JsonValue value) {
+      public PropertyValue<String> readPV(JsonValue value) {
         switch(value.getValueType()) {
           case ARRAY:
             throw new IllegalArgumentException("Can't process array at this position");
@@ -246,7 +245,7 @@ public class JsonIo
         }
       }
 
-      public PropertyValue readNdOrUri(JsonObject value) {
+      public PropertyValue<String> readNdOrUri(JsonObject value) {
         JsonValue res = value.get(rdfResource);
         if(res != null) {
           return Datatree.Literal(URI.create(((JsonString) res).getString()));

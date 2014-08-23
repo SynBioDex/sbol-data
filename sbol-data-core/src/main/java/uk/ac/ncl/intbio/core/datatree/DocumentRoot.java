@@ -12,13 +12,11 @@ import java.util.List;
  * @author Matthew Pocock
  * @param <N>   the property name type
  */
-public interface DocumentRoot<N> extends Document<N, Literal> {
+public interface DocumentRoot<N> extends Document {
   /**
    * Get the top-level documents under this root.
    *
    * @return the top-level documents
    */
 	public List<TopLevelDocument<N>> getTopLevelDocuments();
-	
-	
 }

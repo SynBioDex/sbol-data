@@ -19,7 +19,7 @@ import javax.xml.namespace.QName;
  *
  * @author Matthew Pocock
  */
-public interface Literal extends PropertyValue
+public interface Literal<N> extends PropertyValue<N>
 {
   /**
    * Get the value of this literal.
@@ -37,7 +37,7 @@ public interface Literal extends PropertyValue
    *
    * @author Matthew Pocock
    */
-  public static interface StringLiteral extends Literal {
+  public static interface StringLiteral<N> extends Literal<N> {
     @Override
     String getValue();
   }
@@ -47,7 +47,7 @@ public interface Literal extends PropertyValue
    *
    * @author Matthew Pocock
    */
-  public static interface UriLiteral extends Literal {
+  public static interface UriLiteral<N> extends Literal<N> {
     @Override
     URI getValue();
   }
@@ -57,7 +57,7 @@ public interface Literal extends PropertyValue
    *
    * @author Matthew Pocock
    */
-  public static interface IntegerLiteral extends Literal {
+  public static interface IntegerLiteral<N> extends Literal<N> {
     @Override
     Integer getValue();
   }
@@ -67,7 +67,7 @@ public interface Literal extends PropertyValue
    *
    * @author Matthew Pocock
    */
-  public static interface DoubleLiteral extends Literal {
+  public static interface DoubleLiteral<N> extends Literal<N> {
     @Override
     Double getValue();
   }
@@ -77,7 +77,7 @@ public interface Literal extends PropertyValue
    *
    * @author Matthew Pocock
    */
-  public static interface TypedLiteral extends Literal {
+  public static interface TypedLiteral<N> extends Literal<N> {
     @Override
     String getValue();
 
@@ -86,7 +86,8 @@ public interface Literal extends PropertyValue
      *
      * <p>This is used to indicate how the value string is encoded. Values should be taken from or derive from the
      * xsd types.</p>
-     * @return
+     *
+     * @return tye type
      */
     QName getType();
   }
@@ -96,7 +97,7 @@ public interface Literal extends PropertyValue
    *
    * @author Matthew Pocock
    */
-  public static interface BooleanLiteral extends Literal {
+  public static interface BooleanLiteral<N> extends Literal<N> {
     @Override
     Boolean getValue();
   }
@@ -113,25 +114,25 @@ public interface Literal extends PropertyValue
    *
    * @author Matthew Pocock
    */
-  public static abstract class Visitor {
-    public final void visit(Literal l) {
+  public abstract class Visitor<N> {
+    public final void visit(Literal<N> l) {
       try {
-        if (l instanceof StringLiteral) visit((StringLiteral) l);
-        if (l instanceof UriLiteral) visit((UriLiteral) l);
-        if (l instanceof IntegerLiteral) visit((IntegerLiteral) l);
-        if (l instanceof DoubleLiteral) visit((DoubleLiteral) l);
-        if (l instanceof TypedLiteral) visit((TypedLiteral) l);
-        if (l instanceof BooleanLiteral) visit((BooleanLiteral) l);
+        if (l instanceof StringLiteral) visit((StringLiteral<N>) l);
+        if (l instanceof UriLiteral) visit((UriLiteral<N>) l);
+        if (l instanceof IntegerLiteral) visit((IntegerLiteral<N>) l);
+        if (l instanceof DoubleLiteral) visit((DoubleLiteral<N>) l);
+        if (l instanceof TypedLiteral) visit((TypedLiteral<N>) l);
+        if (l instanceof BooleanLiteral) visit((BooleanLiteral<N>) l);
       } catch (Exception e) {
         throw new IllegalStateException(e);
       }
     }
 
-    public abstract void visit(StringLiteral l) throws Exception;
-    public abstract void visit(UriLiteral l) throws Exception;
-    public abstract void visit(IntegerLiteral l) throws Exception;
-    public abstract void visit(DoubleLiteral l) throws Exception;
-    public abstract void visit(TypedLiteral l) throws Exception;
-    public abstract void visit(BooleanLiteral l) throws Exception;
+    public abstract void visit(StringLiteral<N> l) throws Exception;
+    public abstract void visit(UriLiteral<N> l) throws Exception;
+    public abstract void visit(IntegerLiteral<N> l) throws Exception;
+    public abstract void visit(DoubleLiteral<N> l) throws Exception;
+    public abstract void visit(TypedLiteral<N> l) throws Exception;
+    public abstract void visit(BooleanLiteral<N> l) throws Exception;
   }
 }

@@ -63,11 +63,6 @@ public class RdfIo{
             writeNamespace(nb);
           }
 
-          for (NamedProperty<QName, Literal> properties : document.getProperties()) {
-            // todo: we do nothing with these right now
-          }
-
-
           for (TopLevelDocument<QName> child : document.getTopLevelDocuments())
           {
             write(child);
@@ -83,18 +78,18 @@ public class RdfIo{
 
       }
 
-      private void write(IdentifiableDocument<QName, PropertyValue> doc) throws XMLStreamException {
+      private void write(IdentifiableDocument<QName> doc) throws XMLStreamException {
         writeStartElement(doc.getType());
         writeAttribute(rdfAbout, doc.getIdentity().toString());
 
-        for (NamedProperty<QName, PropertyValue> property : doc.getProperties()) {
+        for (NamedProperty<QName> property : doc.getProperties()) {
           write(property);
         }
 
         writer.writeEndElement();
       }
 
-      private void write(final NamedProperty<QName, PropertyValue> property) {
+      private void write(final NamedProperty<QName> property) {
         new PropertyValue.Visitor<QName>() {
           @Override
           public void visit(NestedDocument<QName> v) throws XMLStreamException {
@@ -104,7 +99,7 @@ public class RdfIo{
           }
 
           @Override
-          public void visit(Literal v) throws XMLStreamException {
+          public void visit(Literal<QName> v) throws XMLStreamException {
             if(isEmptyElementValue(v)) {
               writeEmptyElement(property.getName());
               write(v);
@@ -117,39 +112,39 @@ public class RdfIo{
         }.visit(property.getValue());
       }
 
-      private boolean isEmptyElementValue(Literal literal) {
+      private boolean isEmptyElementValue(Literal<QName> literal) {
         return /* literal instanceof Literal.QNameLiteral || */ literal instanceof Literal.UriLiteral;
       }
 
-      private void write(Literal literal) {
-        new Literal.Visitor() {
+      private void write(Literal<QName> literal) {
+        new Literal.Visitor<QName>() {
           @Override
-          public void visit(Literal.StringLiteral l) throws XMLStreamException {
+          public void visit(Literal.StringLiteral<QName> l) throws XMLStreamException {
             writer.writeCharacters(l.getValue());
           }
 
           @Override
-          public void visit(Literal.UriLiteral l) throws XMLStreamException {
+          public void visit(Literal.UriLiteral<QName> l) throws XMLStreamException {
             writeAttribute(rdfResource, l.getValue().toString());
           }
 
           @Override
-          public void visit(Literal.IntegerLiteral l) throws XMLStreamException {
+          public void visit(Literal.IntegerLiteral<QName> l) throws XMLStreamException {
             writer.writeCharacters(l.getValue().toString());
           }
 
           @Override
-          public void visit(Literal.DoubleLiteral l) throws XMLStreamException {
+          public void visit(Literal.DoubleLiteral<QName> l) throws XMLStreamException {
             writer.writeCharacters(l.getValue().toString());
           }
 
           @Override
-          public void visit(Literal.TypedLiteral l) throws XMLStreamException {
+          public void visit(Literal.TypedLiteral<QName> l) throws XMLStreamException {
             writer.writeCharacters(l.getValue() + "^^" + l.getType().getPrefix() + ":" + l.getType().getLocalPart());
           }
 
           @Override
-          public void visit(Literal.BooleanLiteral l) throws XMLStreamException {
+          public void visit(Literal.BooleanLiteral<QName> l) throws XMLStreamException {
             writer.writeCharacters(l.getValue().toString());
           }
         }.visit(literal);
@@ -196,17 +191,21 @@ public class RdfIo{
     return new IoReader<QName>() {
 
       @Override
-      public DocumentRoot<QName> read () throws XMLStreamException
+      public DocumentRoot<QName> read () throws CoreIoException
       {
-        while (xmlReader.hasNext())
-        {
-          int eventType = xmlReader.next();
-          switch (eventType) {
-            case  XMLEvent.START_ELEMENT:
-              Datatree.NamespaceBindings bindings = readBindings();
-              Datatree.TopLevelDocuments<QName> topLevelDocuments= readTopLevelDocuments();
-              return Datatree.DocumentRoot(bindings, topLevelDocuments, Datatree.<QName>LiteralProperties());
+        try {
+          while (xmlReader.hasNext())
+          {
+            int eventType = xmlReader.next();
+            switch (eventType) {
+              case  XMLEvent.START_ELEMENT:
+                NamespaceBindings bindings = readBindings();
+                Datatree.TopLevelDocuments<QName> topLevelDocuments= readTopLevelDocuments();
+                return Datatree.DocumentRoot(bindings, topLevelDocuments);
+            }
           }
+        } catch (XMLStreamException e) {
+          throw new CoreIoException(e);
         }
         return null;
       }
@@ -333,7 +332,7 @@ public class RdfIo{
         if (identity != null)
         {
           Datatree.NamespaceBindings bindings = readBindings();
-          IdentifiableDocument<QName, PropertyValue> document = null;
+          IdentifiableDocument<QName> document = null;
           if (documentStack.isEmpty())
           {
             document = Datatree.TopLevelDocument(bindings, elementURI, identity, null);
@@ -346,7 +345,7 @@ public class RdfIo{
         }
         else
         {
-          NamedProperty<QName, PropertyValue> property = null;
+          NamedProperty<QName> property = null;
           if (resourceURI != null)
           {
             property = Datatree.NamedProperty(elementURI, resourceURI);
@@ -370,7 +369,7 @@ public class RdfIo{
 
           if (stackObject instanceof NamedProperty)
           {
-            NamedProperty<QName, PropertyValue> property = (NamedProperty<QName, PropertyValue>) stackObject;
+            NamedProperty<QName> property = (NamedProperty<QName>) stackObject;
             // Set its property value
             if (literalValue != null && literalValue.length() > 0)
             {
@@ -383,7 +382,7 @@ public class RdfIo{
             NestedDocument<QName> document = (NestedDocument<QName>) stackObject;
 
             // Get the property for the nested document
-            NamedProperty<QName, PropertyValue> property = (NamedProperty<QName, PropertyValue>) documentStack
+            NamedProperty<QName> property = (NamedProperty<QName>) documentStack
                     .pop();
             property = Datatree.NamedProperty(property.getName(), document);
             updateDocumentInStackWithProperty(property);
@@ -412,21 +411,21 @@ public class RdfIo{
         }
       }
 
-      private void updateDocumentInStackWithProperty(NamedProperty<QName, PropertyValue> property)
+      private void updateDocumentInStackWithProperty(NamedProperty<QName> property)
       {
         //Add it to the document in the stack
-        IdentifiableDocument<QName, PropertyValue> documentInStack=(IdentifiableDocument<QName, PropertyValue>)documentStack.pop();
+        IdentifiableDocument<QName> documentInStack=(IdentifiableDocument<QName>)documentStack.pop();
         documentInStack=addProperty(documentInStack, property);
 
         //Put the document back to the stack
         documentStack.add(documentInStack);
       }
 
-      private IdentifiableDocument<QName, PropertyValue> addProperty(
-              IdentifiableDocument<QName, PropertyValue> document, NamedProperty<QName, PropertyValue> property)
+      private IdentifiableDocument<QName> addProperty(
+              IdentifiableDocument<QName> document, NamedProperty<QName> property)
       {
 
-        List<NamedProperty<QName, PropertyValue>> properties = new ArrayList<NamedProperty<QName, PropertyValue>>();
+        List<NamedProperty<QName>> properties = new ArrayList<>();
         if (document.getProperties() == null || document.getProperties().size() == 0)
         {
           properties = Datatree.NamedProperties(property).getProperties();
@@ -436,10 +435,10 @@ public class RdfIo{
           properties.addAll(document.getProperties());
           // TODO if the Property value is a NestedDocument then add
           // the property using the same property key, still works without this though!
-          properties.add((NamedProperty<QName, PropertyValue>) property);
+          properties.add(property);
         }
-        NamedProperty<QName, PropertyValue>[] propertyArray = properties.toArray(new NamedProperty[properties.size()]);
-        NamedProperties<QName, PropertyValue> namedProperties = Datatree.NamedProperties(propertyArray);
+        NamedProperty<QName>[] propertyArray = properties.toArray(new NamedProperty[properties.size()]);
+        NamedProperties<QName> namedProperties = Datatree.NamedProperties(propertyArray);
         NamespaceBindings bindings = Datatree.NamespaceBindings(
                 (NamespaceBinding[]) document.getNamespaceBindings().toArray());
 

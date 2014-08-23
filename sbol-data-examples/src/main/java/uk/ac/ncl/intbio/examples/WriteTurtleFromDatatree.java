@@ -24,7 +24,7 @@ public class WriteTurtleFromDatatree
   public static void main( String[] args ) throws Exception
   {
 
-	  DocumentRoot originalDocument = DataTreeCreator.makeSBOL2Document();
+	  DocumentRoot<QName> originalDocument = DataTreeCreator.makeSBOL2Document();
 	  write(new OutputStreamWriter(System.out), originalDocument);
 	  StringWriter stringWriter=new StringWriter();
 	  write (stringWriter, originalDocument);
