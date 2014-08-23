@@ -2,18 +2,13 @@ package uk.ac.ncl.intbio.examples;
 
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import javanet.staxutils.IndentingXMLStreamWriter;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 
 import uk.ac.ncl.intbio.core.datatree.DocumentRoot;
 import uk.ac.ncl.intbio.core.datatree.IdentifiableDocument;
@@ -22,20 +17,21 @@ import uk.ac.ncl.intbio.core.datatree.PropertyValue;
 import uk.ac.ncl.intbio.core.io.graphviz.DocumentStyler;
 import uk.ac.ncl.intbio.core.io.graphviz.GraphvizIo;
 import uk.ac.ncl.intbio.core.io.graphviz.Styler;
-import uk.ac.ncl.intbio.core.io.rdf.RdfIo;
 import uk.ac.ncl.intbio.core.io.rdf.RdfTerms;
+
 /**
  * Provides an example for exporting {@link DocumentRoot} objects using the JSON format.
  * In the example, {@link DocumentRoot} objects with both SBOL1.1.0 and SBOL2.0 data are exported in the GraphViz format.
- * @param args
- * @throws Exception
+ *
+ * @author Matthew Pocock
  */
 public class GraphvizExample
 {
 	/**
-	 * Exports two example DocumentRoot objects (SBOL 1.1.0 and SBOL 2.0 objects) in the GraphViz format. 
-	 * @param args
-	 * @throws Exception
+	 * Exports two example DocumentRoot objects (SBOL 1.1.0 and SBOL 2.0 objects) in the GraphViz format.
+   *
+   * @param args  command-line argument
+   * @throws Exception if anything goes wrong
 	 */
   public static void main( String[] args ) throws Exception
   {

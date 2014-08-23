@@ -6,7 +6,7 @@ import uk.ac.ncl.intbio.core.datatree.NamespaceBinding;
 import static uk.ac.ncl.intbio.core.datatree.Datatree.NamespaceBinding;
 
 /**
- * Provides qualified names for SBOL1.1.0 objects
+ * Provides qualified names for SBOL1.1.0 objects.
  *
  */
 public class SbolTerms

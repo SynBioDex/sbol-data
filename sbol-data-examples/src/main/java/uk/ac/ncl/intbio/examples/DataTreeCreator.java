@@ -4,7 +4,6 @@ import java.net.URI;
 
 import javax.xml.namespace.QName;
 
-import uk.ac.ncl.intbio.core.datatree.Datatree;
 import uk.ac.ncl.intbio.core.datatree.DocumentRoot;
 import uk.ac.ncl.intbio.core.datatree.NamespaceBinding;
 import uk.ac.ncl.intbio.core.datatree.NestedDocument;
@@ -14,8 +13,10 @@ import uk.ac.ncl.intbio.core.schema.SchemaCatalog;
 
 import static uk.ac.ncl.intbio.core.datatree.Datatree.*;
 import static uk.ac.ncl.intbio.core.schema.Schema.*;
+
 /**
- * Provides methods to create example Datatrees 
+ * Provides methods to create example Datatrees.
+
  * @author goksel
  *
  */
@@ -26,8 +27,8 @@ public class DataTreeCreator {
   private static final NamespaceBinding obo = NamespaceBinding("http://purl.obolibrary.org/obo/", "obo");
   private static final NamespaceBinding utah = NamespaceBinding("http://www.async.ece.utah.edu/", "utah");
 
-  private static String dctermsNS = "http://purl.org/dc/terms/";
-  private static String dctermsPF = "dcterms";
+//  private static String dctermsNS = "http://purl.org/dc/terms/";
+//  private static String dctermsPF = "dcterms";
 
   /**
    * Creates an example {@link DocumentRoot} object with data from the SBOL2.0 proposed data model.

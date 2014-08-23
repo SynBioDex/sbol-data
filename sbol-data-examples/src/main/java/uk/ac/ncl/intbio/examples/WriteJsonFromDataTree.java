@@ -5,19 +5,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import javanet.staxutils.IndentingXMLStreamWriter;
-
 import javax.json.*;
 import javax.json.stream.JsonGenerator;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamWriter;
 
 import uk.ac.ncl.intbio.core.datatree.DocumentRoot;
 import uk.ac.ncl.intbio.core.io.IoReader;
 import uk.ac.ncl.intbio.core.io.json.JsonIo;
 import uk.ac.ncl.intbio.core.io.json.StringifyQName;
-import uk.ac.ncl.intbio.core.io.rdf.RdfIo;
 
 /**
  * Provides an example for importing and exporting {@link DocumentRoot} objects using the JSON format.
