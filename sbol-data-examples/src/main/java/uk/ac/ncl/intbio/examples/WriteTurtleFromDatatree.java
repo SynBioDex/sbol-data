@@ -10,13 +10,15 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+
 import java.io.*;
 
 /**
- * Write a demo document out as RDF.
- *
- * @author Matthew Pocock
- * @author Goksel Misirli
+ * Provides an example for importing and exporting {@link DocumentRoot} objects using the RDF Turtle format.
+ * In the example a {@link DocumentRoot} including SBOL2.0 objects (with data for Module, Interaction, Participation, ComponentInstantiation and Model objects from the SBOL2.0 proposed data model)
+ * is initially written to the console and also to an in-memory {@link String}, which is then read into another {@link DocumentRoot}
+ * @param args
+ * @throws Exception
  */
 public class WriteTurtleFromDatatree
 {
