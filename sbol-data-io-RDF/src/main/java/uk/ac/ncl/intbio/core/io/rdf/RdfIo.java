@@ -19,8 +19,28 @@ import uk.ac.ncl.intbio.core.io.IoReader;
 import uk.ac.ncl.intbio.core.io.IoWriter;
 import static uk.ac.ncl.intbio.core.io.rdf.RdfTerms.*;
 
+/** 
+ * The IO layer to read and write {@link DocumentRoot}s using RDF/XML.
+ * <p>
+ * Documents are serialised using nesting, in which {@link TopLevelDocument}s embed {@link NestedDocument}s. 
+ * </p>
+ *
+ * <p>
+ * Both {@link TopLevelDocument}s and {@link NestedDocument}s are represented as RDF resources, and 
+ * {@link NamedProperty} objects are serialised as statements for these RDF resources. 
+ * </p>
+ */
 public class RdfIo{
-
+  
+  /**
+   * Creates an {@link IoWriter} using the given {@link XMLStreamWriter} object.
+   * 
+   * <p>This {@link IoWriter} provides a method to write {@link DocumentRoot} objects in RDF/XML format. 
+   * During the serialisation, the RDF namespace is added if it is not provided in the {@link NamespaceBinding}s property of a {@link DocumentRoot}.
+   * </p>
+   * @param writer The {@link XMLStreamWriter} writer to serialise a {@link DocumentRoot}.
+   * @return {@link IoWriter}
+   */
   public IoWriter<QName> createIoWriter(final XMLStreamWriter writer)
   {
     return new IoWriter<QName>() {
@@ -43,11 +63,6 @@ public class RdfIo{
             writeNamespace(nb);
           }
 
-          for (NamedProperty<QName, Literal> properties : document.getProperties()) {
-            // todo: we do nothing with these right now
-          }
-
-
           for (TopLevelDocument<QName> child : document.getTopLevelDocuments())
           {
             write(child);
@@ -63,18 +78,18 @@ public class RdfIo{
 
       }
 
-      private void write(IdentifiableDocument<QName, PropertyValue> doc) throws XMLStreamException {
+      private void write(IdentifiableDocument<QName> doc) throws XMLStreamException {
         writeStartElement(doc.getType());
         writeAttribute(rdfAbout, doc.getIdentity().toString());
 
-        for (NamedProperty<QName, PropertyValue> property : doc.getProperties()) {
+        for (NamedProperty<QName> property : doc.getProperties()) {
           write(property);
         }
 
         writer.writeEndElement();
       }
 
-      private void write(final NamedProperty<QName, PropertyValue> property) {
+      private void write(final NamedProperty<QName> property) {
         new PropertyValue.Visitor<QName>() {
           @Override
           public void visit(NestedDocument<QName> v) throws XMLStreamException {
@@ -84,7 +99,7 @@ public class RdfIo{
           }
 
           @Override
-          public void visit(Literal v) throws XMLStreamException {
+          public void visit(Literal<QName> v) throws XMLStreamException {
             if(isEmptyElementValue(v)) {
               writeEmptyElement(property.getName());
               write(v);
@@ -97,39 +112,39 @@ public class RdfIo{
         }.visit(property.getValue());
       }
 
-      private boolean isEmptyElementValue(Literal literal) {
+      private boolean isEmptyElementValue(Literal<QName> literal) {
         return /* literal instanceof Literal.QNameLiteral || */ literal instanceof Literal.UriLiteral;
       }
 
-      private void write(Literal literal) {
-        new Literal.Visitor() {
+      private void write(Literal<QName> literal) {
+        new Literal.Visitor<QName>() {
           @Override
-          public void visit(Literal.StringLiteral l) throws XMLStreamException {
+          public void visit(Literal.StringLiteral<QName> l) throws XMLStreamException {
             writer.writeCharacters(l.getValue());
           }
 
           @Override
-          public void visit(Literal.UriLiteral l) throws XMLStreamException {
+          public void visit(Literal.UriLiteral<QName> l) throws XMLStreamException {
             writeAttribute(rdfResource, l.getValue().toString());
           }
 
           @Override
-          public void visit(Literal.IntegerLiteral l) throws XMLStreamException {
+          public void visit(Literal.IntegerLiteral<QName> l) throws XMLStreamException {
             writer.writeCharacters(l.getValue().toString());
           }
 
           @Override
-          public void visit(Literal.DoubleLiteral l) throws XMLStreamException {
+          public void visit(Literal.DoubleLiteral<QName> l) throws XMLStreamException {
             writer.writeCharacters(l.getValue().toString());
           }
 
           @Override
-          public void visit(Literal.TypedLiteral l) throws XMLStreamException {
+          public void visit(Literal.TypedLiteral<QName> l) throws XMLStreamException {
             writer.writeCharacters(l.getValue() + "^^" + l.getType().getPrefix() + ":" + l.getType().getLocalPart());
           }
 
           @Override
-          public void visit(Literal.BooleanLiteral l) throws XMLStreamException {
+          public void visit(Literal.BooleanLiteral<QName> l) throws XMLStreamException {
             writer.writeCharacters(l.getValue().toString());
           }
         }.visit(literal);
@@ -161,23 +176,36 @@ public class RdfIo{
 
     };
   }
-
+  
+  /**
+   * Creates an {@link IoReader} using the given {@link XMLStreamReader}.
+   * <p>
+   * This {@link IoReader} provides a method to read data in RDF/XML format and deserialise it into a {@link DocumentRoot} object.
+   * </p>
+   * @param xmlReader The {@link XMLStreamReader} reader to read RDF/XML data.
+   * @return {@link IoReader}
+   * @throws XMLStreamException  when the underlying reader raises an exception
+   */
   public IoReader<QName> createIoReader(final XMLStreamReader xmlReader) throws XMLStreamException
   {
     return new IoReader<QName>() {
 
       @Override
-      public DocumentRoot<QName> read () throws XMLStreamException
+      public DocumentRoot<QName> read () throws CoreIoException
       {
-        while (xmlReader.hasNext())
-        {
-          int eventType = xmlReader.next();
-          switch (eventType) {
-            case  XMLEvent.START_ELEMENT:
-              Datatree.NamespaceBindings bindings = readBindings();
-              Datatree.TopLevelDocuments<QName> topLevelDocuments= readTopLevelDocuments();
-              return Datatree.DocumentRoot(bindings, topLevelDocuments, Datatree.<QName>LiteralProperties());
+        try {
+          while (xmlReader.hasNext())
+          {
+            int eventType = xmlReader.next();
+            switch (eventType) {
+              case  XMLEvent.START_ELEMENT:
+                NamespaceBindings bindings = readBindings();
+                Datatree.TopLevelDocuments<QName> topLevelDocuments= readTopLevelDocuments();
+                return Datatree.DocumentRoot(bindings, topLevelDocuments);
+            }
           }
+        } catch (XMLStreamException e) {
+          throw new CoreIoException(e);
         }
         return null;
       }
@@ -207,38 +235,41 @@ public class RdfIo{
       private List<TopLevelDocument<QName>> topLevelDocuments=null;
 
       /**
-       * Reads RDF document and returns TopLevelDocuments. Properties and
+       * Reads RDF document and returns TopLevelDocuments.
+       *
+       * <p>
+       * Properties and
        * documents are stored in a Stack object and populated as more data
        * become available The stack object holds one TopLevelDocument at a
        * time. Once a TopLevelDocument is read it is added to the
        * topLevelDocuments collection. For triples within a
-       * TopLevelDocument the following rules apply:<br/>
+       * TopLevelDocument the following rules apply:
+       * </p>
        * Starting tags:
        * <p>
-       * <br/>
        * If a triple contains rdf:about attribute it is assumed that the
        * tag is the start of a NestedDocument. An empty Nested document is
-       * added to the stack <br/>
+       * added to the stack.
        * If a triple contains rdf:resource, a NamedProperty with a URI
-       * value is created and added to the stack <br/>
+       * value is created and added to the stack.
        * Otherwise a NamedProperty without a value is added to the stack
        * </p>
-       * <br/>
+       *
        * End tags:
        * <p>
-       * For each end tag, an object is taken from the stack. <br/>
+       * For each end tag, an object is taken from the stack.
        * If the object is a property The property is removed from the
        * stack The XML value (if the value exists) is used to set the
        * value of that property. The property is then added to the recent
        * document in the stack. This document can be a NestedDocument or a
-       * TopLevelDocument <br/>
+       * TopLevelDocument.
        * If the object is a NestedDocument, the document is removed from
        * the stack. The property identifying the document in this case is
        * the most recent object in the stack and it is also removed from
        * the stack. The NestedDocument is then added to the parent
        * document (it can be a another NestedDocument or a
        * TopLevelDocument using the property relationship. This parent
-       * document is the most recent object after removing the property.<br/>
+       * document is the most recent object after removing the property.
        * If the object is TopLevelDocument, the object is removed from the
        * stack and added to the topLevelDocuments collection
        * </p>
@@ -301,7 +332,7 @@ public class RdfIo{
         if (identity != null)
         {
           Datatree.NamespaceBindings bindings = readBindings();
-          IdentifiableDocument<QName, PropertyValue> document = null;
+          IdentifiableDocument<QName> document = null;
           if (documentStack.isEmpty())
           {
             document = Datatree.TopLevelDocument(bindings, elementURI, identity, null);
@@ -314,7 +345,7 @@ public class RdfIo{
         }
         else
         {
-          NamedProperty<QName, PropertyValue> property = null;
+          NamedProperty<QName> property = null;
           if (resourceURI != null)
           {
             property = Datatree.NamedProperty(elementURI, resourceURI);
@@ -338,7 +369,7 @@ public class RdfIo{
 
           if (stackObject instanceof NamedProperty)
           {
-            NamedProperty<QName, PropertyValue> property = (NamedProperty<QName, PropertyValue>) stackObject;
+            NamedProperty<QName> property = (NamedProperty<QName>) stackObject;
             // Set its property value
             if (literalValue != null && literalValue.length() > 0)
             {
@@ -351,7 +382,7 @@ public class RdfIo{
             NestedDocument<QName> document = (NestedDocument<QName>) stackObject;
 
             // Get the property for the nested document
-            NamedProperty<QName, PropertyValue> property = (NamedProperty<QName, PropertyValue>) documentStack
+            NamedProperty<QName> property = (NamedProperty<QName>) documentStack
                     .pop();
             property = Datatree.NamedProperty(property.getName(), document);
             updateDocumentInStackWithProperty(property);
@@ -380,21 +411,21 @@ public class RdfIo{
         }
       }
 
-      private void updateDocumentInStackWithProperty(NamedProperty<QName, PropertyValue> property)
+      private void updateDocumentInStackWithProperty(NamedProperty<QName> property)
       {
         //Add it to the document in the stack
-        IdentifiableDocument<QName, PropertyValue> documentInStack=(IdentifiableDocument<QName, PropertyValue>)documentStack.pop();
+        IdentifiableDocument<QName> documentInStack=(IdentifiableDocument<QName>)documentStack.pop();
         documentInStack=addProperty(documentInStack, property);
 
         //Put the document back to the stack
         documentStack.add(documentInStack);
       }
 
-      private IdentifiableDocument<QName, PropertyValue> addProperty(
-              IdentifiableDocument<QName, PropertyValue> document, NamedProperty<QName, PropertyValue> property)
+      private IdentifiableDocument<QName> addProperty(
+              IdentifiableDocument<QName> document, NamedProperty<QName> property)
       {
 
-        List<NamedProperty<QName, PropertyValue>> properties = new ArrayList<NamedProperty<QName, PropertyValue>>();
+        List<NamedProperty<QName>> properties = new ArrayList<>();
         if (document.getProperties() == null || document.getProperties().size() == 0)
         {
           properties = Datatree.NamedProperties(property).getProperties();
@@ -404,10 +435,10 @@ public class RdfIo{
           properties.addAll(document.getProperties());
           // TODO if the Property value is a NestedDocument then add
           // the property using the same property key, still works without this though!
-          properties.add((NamedProperty<QName, PropertyValue>) property);
+          properties.add(property);
         }
-        NamedProperty<QName, PropertyValue>[] propertyArray = properties.toArray(new NamedProperty[properties.size()]);
-        NamedProperties<QName, PropertyValue> namedProperties = Datatree.NamedProperties(propertyArray);
+        NamedProperty<QName>[] propertyArray = properties.toArray(new NamedProperty[properties.size()]);
+        NamedProperties<QName> namedProperties = Datatree.NamedProperties(propertyArray);
         NamespaceBindings bindings = Datatree.NamespaceBindings(
                 (NamespaceBinding[]) document.getNamespaceBindings().toArray());
 

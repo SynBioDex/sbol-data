@@ -12,5 +12,5 @@ import java.util.Map;
  * @author Matthew Pocock
  */
 public interface EdgeStyler {
-    void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName, ? extends PropertyValue> from, PropertyValue to, QName edgeType);
+    void applyStyle(Map<String, String> styleMap, IdentifiableDocument<QName> from, PropertyValue<QName> to, QName edgeType);
 }

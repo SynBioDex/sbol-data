@@ -13,5 +13,5 @@ import java.util.Map;
  * @author Matthew Pocock
  */
 public interface LiteralStyler {
-    void applyStyle(Map<String, String> styleMap, Literal value);
+    void applyStyle(Map<String, String> styleMap, Literal<QName> value);
 }
