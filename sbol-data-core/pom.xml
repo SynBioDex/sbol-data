@@ -5,11 +5,11 @@
   <parent>
     <groupId>uk.ac.ncl.intbio</groupId>
     <artifactId>sbol-data</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
   </parent>
-  <groupId>uk.ac.ncl.intbio</groupId>
   <artifactId>sbol-data-core</artifactId>
   <name>sbol-data-core</name>
+  <description>The API for the data structures, their serialisation and validation</description>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
