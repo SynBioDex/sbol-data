@@ -5,12 +5,11 @@
   <parent>
     <groupId>uk.ac.ncl.intbio</groupId>
     <artifactId>sbol-data</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
   </parent>
-  <groupId>uk.ac.ncl.intbio</groupId>
   <artifactId>sbol-data-examples</artifactId>
-  <version>1.0-SNAPSHOT</version>
   <name>sbol-data-examples</name>
+  <description>Provides import and export examples in RDF/XML, RDF/Turtle,JSON and Graphviz</description>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
@@ -22,27 +21,27 @@
         <dependency>
     	<groupId>uk.ac.ncl.intbio</groupId>
     	<artifactId>sbol-data-core</artifactId>
-    	<version>0.1.0-SNAPSHOT</version>
+    	<version>0.1.0</version>
   	</dependency>
   	    <dependency>
     	<groupId>uk.ac.ncl.intbio</groupId>
     	<artifactId>sbol-data-io-RDF</artifactId>
-    	<version>0.1.0-SNAPSHOT</version>
+    	<version>0.1.0</version>
   	</dependency>
   	 <dependency>
     	<groupId>uk.ac.ncl.intbio</groupId>
     	<artifactId>sbol-data-io-graphviz</artifactId>
-    	<version>0.1.0-SNAPSHOT</version>
+    	<version>0.1.0</version>
   	</dependency>
       <dependency>
        	<groupId>uk.ac.ncl.intbio</groupId>
        	<artifactId>sbol-data-io-json</artifactId>
-       	<version>0.1.0-SNAPSHOT</version>
+       	<version>0.1.0</version>
      	</dependency>
       <dependency>
        	<groupId>uk.ac.ncl.intbio</groupId>
        	<artifactId>sbol-data-io-turtle</artifactId>
-       	<version>0.1.0-SNAPSHOT</version>
+       	<version>0.1.0</version>
      	</dependency>
 <dependency>
 	<groupId>net.java.dev.stax-utils</groupId>

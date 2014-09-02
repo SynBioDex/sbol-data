@@ -74,3 +74,7 @@ RdfIo rdfIo = new RdfIo();
 rdfIo.createIoWriter(xmlWriter).write(root);
 xmlWriter.close();
 ```
+
+##Change Log
+v0.1.0, 29/08/2014
+Initial release
