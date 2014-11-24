@@ -20,7 +20,7 @@ public class Sbol2Terms
 	   *
 	   */
 	  public static final class component {
-		  public static final QName sequenceComponent = sbol2.withLocalPart("SequenceComponent");
+		  public static final QName componentDefinition = sbol2.withLocalPart("ComponentDefinition");
 		  public static final QName sequence = sbol2.withLocalPart("Sequence");
 		  public static final QName hasSequence = sbol2.withLocalPart("sequence");		  
 		  public static final QName annotation = sbol2.withLocalPart("annotation");
@@ -28,10 +28,10 @@ public class Sbol2Terms
 		  public static final QName start = sbol2.withLocalPart("start");
 		  public static final QName end = sbol2.withLocalPart("end");
 		  public static final QName orientation = sbol2.withLocalPart("orientation");
-		  public static final QName component = sbol2.withLocalPart("component");
+		  public static final QName hasComponent = sbol2.withLocalPart("component");
 		  
 		  public static final QName elements = sbol2.withLocalPart("elements");	
-		  public static final QName sequenceType = sbol2.withLocalPart("sequenceType");	
+		  public static final QName role = sbol2.withLocalPart("role");	
 		  
 	  }
 	  
@@ -39,10 +39,15 @@ public class Sbol2Terms
 	   * A group of qualified terms for the SBOL documented interface
 	   *
 	   */
+	  public static final class identified {
+		  public static final QName identified = sbol2.withLocalPart("Identified");
+	  }
 	  public static final class documented {
 		  public static final QName name = sbol2.withLocalPart("name");
 		  public static final QName description = sbol2.withLocalPart("description");		  
 		  public static final QName displayId = sbol2.withLocalPart("displayId");
+		  public static final QName documented = sbol2.withLocalPart("Documented");
+		  
 	  }
 	    
 	  /**

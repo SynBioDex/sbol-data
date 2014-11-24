@@ -51,7 +51,7 @@ public class WriteRdfFromDatatree
 	  
   }
   
-	private static void write(Writer stream, DocumentRoot<QName> document) throws Exception
+	public static void write(Writer stream, DocumentRoot<QName> document) throws Exception
 	{
 		XMLStreamWriter xmlWriter = new IndentingXMLStreamWriter(XMLOutputFactory.newInstance().createXMLStreamWriter(stream));
 		RdfIo rdfIo = new RdfIo();
@@ -61,7 +61,7 @@ public class WriteRdfFromDatatree
 		xmlWriter.close();
 	}
 	
-	private static DocumentRoot<QName> read(Reader reader) throws Exception
+	public static DocumentRoot<QName> read(Reader reader) throws Exception
 	{
 		XMLStreamReader xmlReader=XMLInputFactory.newInstance().createXMLStreamReader(reader);
 		RdfIo rdfIo = new RdfIo();

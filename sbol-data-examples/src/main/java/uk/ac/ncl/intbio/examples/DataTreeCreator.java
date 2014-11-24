@@ -246,13 +246,13 @@ public class DataTreeCreator {
   public static DocumentRoot<QName> makeSBOL2SequenceComponent()
   {
     TopLevelDocument<QName> pLac=TopLevelDocument(
-            Sbol2Terms.component.sequenceComponent,
+            Sbol2Terms.component.componentDefinition,
             sbolExample.namespacedUri("sequenceComponent/pLac"),
             NamedProperties(
                     NamedProperty(Sbol2Terms.documented.name, "pLac"),
                     NamedProperty(Sbol2Terms.documented.displayId, "pLac"),
                     NamedProperty(RdfTerms.rdfType, URI.create("DNA")),
-                    NamedProperty(Sbol2Terms.component.sequenceType, URI.create("http://purl.org/obo/owl/SO#SO_0000167"))
+                    NamedProperty(Sbol2Terms.component.role, URI.create("http://purl.org/obo/owl/SO#SO_0000167"))
             ));
 
 
@@ -261,7 +261,7 @@ public class DataTreeCreator {
             sbolExample.namespacedUri("sequenceComponent/pLac/instantiation"),
             NamedProperties(
                     NamedProperty(Sbol2Terms.documented.name, "pLac"),
-                    NamedProperty(Sbol2Terms.component.component, pLac.getIdentity())
+                    NamedProperty(Sbol2Terms.component.hasComponent, pLac.getIdentity())
             ));
 
     NestedDocument<QName> pLacAnnotation=NestedDocument(
@@ -281,13 +281,13 @@ public class DataTreeCreator {
             ));
 
     TopLevelDocument<QName> lacIRepressibleGene=TopLevelDocument(
-            Sbol2Terms.component.sequenceComponent,
+            Sbol2Terms.component.componentDefinition,
             sbolExample.namespacedUri("sequenceComponent/UU_002"),
             NamedProperties(
                     NamedProperty(Sbol2Terms.documented.name, "LacI Repressible Gene"),
                     NamedProperty(Sbol2Terms.documented.displayId, "UU_002"),
                     NamedProperty(RdfTerms.rdfType, URI.create("DNA")),
-                    NamedProperty(Sbol2Terms.component.sequenceType, URI.create("http://purl.org/obo/owl/SO#SO_0000774")),
+                    NamedProperty(Sbol2Terms.component.role, URI.create("http://purl.org/obo/owl/SO#SO_0000774")),
                     NamedProperty(Sbol2Terms.component.annotation, pLacAnnotation),
                     NamedProperty(Sbol2Terms.component.hasSequence, lacIRepressibleGeneSequence.getIdentity())
             ));
@@ -495,7 +495,7 @@ public class DataTreeCreator {
                             Extends(Sbol2Terms.sbol2.namespacedUri("/schema/documented")),
                             IdentifierSchemas(),
                             TypeSchemas(
-                                    TypeSchema(Sbol2Terms.component.sequenceComponent)
+                                    TypeSchema(Sbol2Terms.component.componentDefinition)
                             ),
                             PropertySchemas(
                                     PropertySchema(
@@ -517,7 +517,7 @@ public class DataTreeCreator {
                                                                     Extends(Sbol2Terms.sbol2.namespacedUri("/schema/documented")),
                                                                     IdentifierSchemas(),
                                                                     TypeSchemas(
-                                                                            TypeSchema(Sbol2Terms.component.sequenceComponent)
+                                                                            TypeSchema(Sbol2Terms.component.componentDefinition)
                                                                     ),
                                                                     PropertySchemas(
                                                                             PropertySchema(
