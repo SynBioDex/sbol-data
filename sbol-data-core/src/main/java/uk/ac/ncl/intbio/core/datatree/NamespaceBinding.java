@@ -49,7 +49,7 @@ public final class NamespaceBinding {
 
     if (!namespaceURI.equals(that.namespaceURI)) return false;
     if (!prefix.equals(that.prefix)) return false;
-
+    
     return true;
   }
 

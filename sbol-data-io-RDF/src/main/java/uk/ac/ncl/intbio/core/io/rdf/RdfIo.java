@@ -223,12 +223,7 @@ public class RdfIo{
        * Used to store documents and properties when reading XML in the readTopLevelDocuments method
        */
       private Stack<Object> documentStack=new Stack<Object>() ;
-
-      /**
-       * Used as a buffer to read XML characters in the readTopLevelDocuments method
-       */
-      private StringBuilder currentText;
-
+      
       /**
        * Used to store the TopLevelDocument objects in the readTopLevelDocuments method
        */
@@ -279,7 +274,11 @@ public class RdfIo{
        */
       private Datatree.TopLevelDocuments<QName> readTopLevelDocuments()
               throws XMLStreamException {
-        topLevelDocuments = new ArrayList<TopLevelDocument<QName>>();
+    	  
+        //Used as a buffer to read XML characters in the readTopLevelDocuments method         
+        StringBuilder currentText=null;
+          
+    	topLevelDocuments = new ArrayList<TopLevelDocument<QName>>();
         while (xmlReader.hasNext()) {
 
           int eventType = xmlReader.next();
@@ -319,11 +318,11 @@ public class RdfIo{
         int attributes = xmlReader.getAttributeCount();
         for (int i = 0; i < attributes; ++i)
         {
-          if ("about".equals(xmlReader.getAttributeLocalName(i)) && "rdf".equals(xmlReader.getAttributePrefix(i)))
+          if (rdfAbout.getLocalPart().equals(xmlReader.getAttributeLocalName(i)) && rdfAbout.getNamespaceURI().equals(xmlReader.getAttributeNamespace(i)))            
           {
             identity = URI.create(xmlReader.getAttributeValue(i));
           }
-          if ("resource".equals(xmlReader.getAttributeLocalName(i)) && "rdf".equals(xmlReader.getAttributePrefix(i)))
+          if (rdfResource.getLocalPart().equals(xmlReader.getAttributeLocalName(i)) && rdfResource.getNamespaceURI().equals(xmlReader.getAttributeNamespace(i)))
           {
             resourceURI = URI.create(xmlReader.getAttributeValue(i));
           }
