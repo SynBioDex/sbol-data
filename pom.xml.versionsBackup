@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>uk.ac.ncl.intbio</groupId>
 	<artifactId>sbol-data</artifactId>
-	<version>0.1.1</version>
+	<version>0.1.0</version>
 	<packaging>pom</packaging>
 	<name>sbol-data</name>
 	<description>APIs to manage SBOL-shaped data documents</description>
