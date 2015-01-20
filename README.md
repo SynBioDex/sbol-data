@@ -78,3 +78,6 @@ xmlWriter.close();
 ##Change Log
 v0.1.0, 29/08/2014
 Initial release
+
+v0.1.1, 20/01/2015
+Fixed the RDF prefix mapping to read  SBOL1 files 
