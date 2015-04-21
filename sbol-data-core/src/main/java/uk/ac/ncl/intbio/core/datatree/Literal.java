@@ -128,11 +128,11 @@ public interface Literal<N> extends PropertyValue<N>
       }
     }
 
-    public abstract void visit(StringLiteral<N> l) throws Exception;
-    public abstract void visit(UriLiteral<N> l) throws Exception;
-    public abstract void visit(IntegerLiteral<N> l) throws Exception;
-    public abstract void visit(DoubleLiteral<N> l) throws Exception;
-    public abstract void visit(TypedLiteral<N> l) throws Exception;
-    public abstract void visit(BooleanLiteral<N> l) throws Exception;
+    public void visit(StringLiteral<N> l) throws Exception {};
+    public void visit(UriLiteral<N> l) throws Exception {};
+    public void visit(IntegerLiteral<N> l) throws Exception {};
+    public void visit(DoubleLiteral<N> l) throws Exception {};
+    public void visit(TypedLiteral<N> l) throws Exception {};
+    public void visit(BooleanLiteral<N> l) throws Exception {};
   }
 }

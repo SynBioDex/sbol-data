@@ -72,6 +72,18 @@ public interface IdentifiableDocument<N> extends Document {
    */
   List<PropertyValue<N>> getPropertyValues(N propertyName);
 
+  List<String> getStringPropertyValues(N propertyName);
+
+  String getStringPropertyValue(N propertyName);
+
+  String getOptionalStringPropertyValue(N propertyName);
+
+  List<URI> getUriPropertyValues(N propertyName);
+
+  URI getUriPropertyValue(N propertyName);
+
+  URI getOptionalUriPropertyValue(N propertyName);
+
   // Package private, used in Datatree only.
   static abstract class Abstract<N>  implements IdentifiableDocument<N> {
     @Override
@@ -92,6 +104,79 @@ public interface IdentifiableDocument<N> extends Document {
 
       return values;
     }
+
+    public List<String> getStringPropertyValues(N propertyName) {
+      final List<String> values = new ArrayList<String>();
+
+      for(PropertyValue<N> pv: getPropertyValues(propertyName)) {
+        new PropertyValue.LiteralVisitor<N>(new Literal.Visitor<N>() {
+          @Override
+          public void visit(Literal.StringLiteral<N> l) throws Exception {
+            values.add(l.getValue());
+          }
+        }
+        ).visit(pv);
+      }
+
+      return values;
+    }
+
+    public String getStringPropertyValue(N propertyName) {
+      List<String> values = getStringPropertyValues(propertyName);
+
+      if(values.size() == 1)
+        return values.get(0);
+      else throw new IllegalArgumentException(
+              "Required single value property had " + values.size() + " values");
+    }
+
+    public String getOptionalStringPropertyValue(N propertyName) {
+      List<String> values = getStringPropertyValues(propertyName);
+      if(values.isEmpty())
+        return null;
+      else if (values.size() == 1)
+        return values.get(0);
+      else throw new IllegalArgumentException(
+                "Optional property with name " + propertyName + " had " + values.size() + " values");
+    }
+
+    public List<URI> getUriPropertyValues(N propertyName) {
+      final List<URI> values = new ArrayList<URI>();
+
+      for(PropertyValue<N> pv: getPropertyValues(propertyName)) {
+        new PropertyValue.LiteralVisitor<N>(new Literal.Visitor<N>() {
+          @Override
+          public void visit(Literal.UriLiteral<N> l) throws Exception {
+            values.add(l.getValue());
+          }
+        }
+        ).visit(pv);
+      }
+
+      return values;
+    }
+
+    public URI getUriPropertyValue(N propertyName) {
+      List<URI> values = getUriPropertyValues(propertyName);
+
+      if(values.size() == 1)
+        return values.get(0);
+      else throw new IllegalArgumentException(
+              "Required single value property had " + values.size() + " values");
+    }
+
+    @Override
+    public URI getOptionalUriPropertyValue(N propertyName) {
+      List<URI> values = getUriPropertyValues(propertyName);
+      if(values.isEmpty())
+        return null;
+      else if (values.size() == 1)
+        return values.get(0);
+      else throw new IllegalArgumentException(
+                "Optional property with name " + propertyName + " had " + values.size() + " values");
+    }
   }
+
+
 
 }

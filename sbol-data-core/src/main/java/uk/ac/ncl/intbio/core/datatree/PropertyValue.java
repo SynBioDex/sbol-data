@@ -36,7 +36,20 @@ public interface PropertyValue<N> {
       }
     }
 
-    public abstract void visit(NestedDocument<N> v) throws Exception;
-    public abstract void visit(Literal<N> v) throws Exception;
+    public void visit(NestedDocument<N> v) throws Exception {};
+    public void visit(Literal<N> v) throws Exception {};
+  }
+
+  public static final class LiteralVisitor<N> extends Visitor<N> {
+    private final Literal.Visitor<N> litVis;
+
+    public LiteralVisitor(Literal.Visitor<N> litVis) {
+      this.litVis = litVis;
+    }
+
+    @Override
+    public void visit(Literal<N> v) throws Exception {
+      litVis.visit(v);
+    }
   }
 }
