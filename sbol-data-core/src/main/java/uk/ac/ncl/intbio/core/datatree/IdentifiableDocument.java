@@ -75,6 +75,7 @@ public interface IdentifiableDocument<N> extends Document {
   public interface Properties<N> {
 
     public List<NamedProperty<N>> excluding(N ... names);
+    public List<NamedProperty<N>> excluding(Collection<N> names);
 
     TypedProperty<N, String> string();
     TypedProperty<N, URI> uri();
@@ -130,10 +131,15 @@ public interface IdentifiableDocument<N> extends Document {
         @Override
         public List<NamedProperty<N>> excluding(N... names) {
           final Set<N> nameSet = new HashSet<>(Arrays.asList(names));
+          return excluding(nameSet);
+        }
+
+        @Override
+        public List<NamedProperty<N>> excluding(Collection<N> names) {
           final List<NamedProperty<N>> props = new ArrayList<>();
 
           for(NamedProperty<N> np : getProperties()) {
-            if(!nameSet.contains(np.getName())) {
+            if(!names.contains(np.getName())) {
               props.add(np);
             }
           }
