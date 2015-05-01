@@ -1,9 +1,7 @@
 package uk.ac.ncl.intbio.core.datatree;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * Those documents that are associated with an identifier.
@@ -72,17 +70,39 @@ public interface IdentifiableDocument<N> extends Document {
    */
   List<PropertyValue<N>> getPropertyValues(N propertyName);
 
-  List<String> getStringPropertyValues(N propertyName);
+  Properties<N> properties();
 
-  String getStringPropertyValue(N propertyName);
+  public interface Properties<N> {
 
-  String getOptionalStringPropertyValue(N propertyName);
+    public List<NamedProperty<N>> excluding(N ... names);
 
-  List<URI> getUriPropertyValues(N propertyName);
+    TypedProperty<N, String> string();
+    TypedProperty<N, URI> uri();
+    TypedProperty<N, NestedDocument<N>> nestedDocument();
+  }
 
-  URI getUriPropertyValue(N propertyName);
+  public abstract class TypedProperty<N, T> {
+    public abstract List<T> getValues(N propertyName);
 
-  URI getOptionalUriPropertyValue(N propertyName);
+    public final T getValue(N propertyName) {
+      List<T> values = getValues(propertyName);
+
+      if (values.size() == 1)
+        return values.get(0);
+      else throw new IllegalArgumentException(
+              "Required single value property had " + values.size() + " values");
+    }
+
+    public final T getOptionalValue(N propertyName) {
+      List<T> values = getValues(propertyName);
+      if (values.isEmpty())
+        return null;
+      else if (values.size() == 1)
+        return values.get(0);
+      else throw new IllegalArgumentException(
+                "Optional property with name " + propertyName + " had " + values.size() + " values");
+    }
+  }
 
   // Package private, used in Datatree only.
   static abstract class Abstract<N>  implements IdentifiableDocument<N> {
@@ -105,78 +125,88 @@ public interface IdentifiableDocument<N> extends Document {
       return values;
     }
 
-    public List<String> getStringPropertyValues(N propertyName) {
-      final List<String> values = new ArrayList<String>();
+    public Properties<N> properties() {
+      return new Properties<N>() {
+        @Override
+        public List<NamedProperty<N>> excluding(N... names) {
+          final Set<N> nameSet = new HashSet<>(Arrays.asList(names));
+          final List<NamedProperty<N>> props = new ArrayList<>();
 
-      for(PropertyValue<N> pv: getPropertyValues(propertyName)) {
-        new PropertyValue.LiteralVisitor<N>(new Literal.Visitor<N>() {
-          @Override
-          public void visit(Literal.StringLiteral<N> l) throws Exception {
-            values.add(l.getValue());
+          for(NamedProperty<N> np : getProperties()) {
+            if(!nameSet.contains(np.getName())) {
+              props.add(np);
+            }
           }
+
+          return props;
         }
-        ).visit(pv);
-      }
 
-      return values;
-    }
+        @Override
+        public TypedProperty<N, String> string() {
+          return new TypedProperty<N, String>() {
+            @Override
+            public List<String> getValues(N propertyName) {
+              final List<String> values = new ArrayList<>();
 
-    public String getStringPropertyValue(N propertyName) {
-      List<String> values = getStringPropertyValues(propertyName);
+              for(PropertyValue<N> pv: getPropertyValues(propertyName)) {
+                new PropertyValue.LiteralVisitor<>(new Literal.Visitor<N>() {
+                  @Override
+                  public void visit(Literal.StringLiteral<N> l) throws Exception {
+                    values.add(l.getValue());
+                  }
+                }
+                ).visit(pv);
+              }
 
-      if(values.size() == 1)
-        return values.get(0);
-      else throw new IllegalArgumentException(
-              "Required single value property had " + values.size() + " values");
-    }
-
-    public String getOptionalStringPropertyValue(N propertyName) {
-      List<String> values = getStringPropertyValues(propertyName);
-      if(values.isEmpty())
-        return null;
-      else if (values.size() == 1)
-        return values.get(0);
-      else throw new IllegalArgumentException(
-                "Optional property with name " + propertyName + " had " + values.size() + " values");
-    }
-
-    public List<URI> getUriPropertyValues(N propertyName) {
-      final List<URI> values = new ArrayList<URI>();
-
-      for(PropertyValue<N> pv: getPropertyValues(propertyName)) {
-        new PropertyValue.LiteralVisitor<N>(new Literal.Visitor<N>() {
-          @Override
-          public void visit(Literal.UriLiteral<N> l) throws Exception {
-            values.add(l.getValue());
-          }
+              return values;
+            }
+          };
         }
-        ).visit(pv);
-      }
 
-      return values;
-    }
+        @Override
+        public TypedProperty<N, URI> uri() {
+          return new TypedProperty<N, URI>() {
+            @Override
+            public List<URI> getValues(N propertyName) {
+              final List<URI> values = new ArrayList<>();
 
-    public URI getUriPropertyValue(N propertyName) {
-      List<URI> values = getUriPropertyValues(propertyName);
+              for(PropertyValue<N> pv: getPropertyValues(propertyName)) {
+                new PropertyValue.LiteralVisitor<>(new Literal.Visitor<N>() {
+                  @Override
+                  public void visit(Literal.UriLiteral<N> l) throws Exception {
+                    values.add(l.getValue());
+                  }
+                }
+                ).visit(pv);
+              }
 
-      if(values.size() == 1)
-        return values.get(0);
-      else throw new IllegalArgumentException(
-              "Required single value property had " + values.size() + " values");
-    }
+              return values;
+            }
+          };
+        }
 
-    @Override
-    public URI getOptionalUriPropertyValue(N propertyName) {
-      List<URI> values = getUriPropertyValues(propertyName);
-      if(values.isEmpty())
-        return null;
-      else if (values.size() == 1)
-        return values.get(0);
-      else throw new IllegalArgumentException(
-                "Optional property with name " + propertyName + " had " + values.size() + " values");
-    }
+        @Override
+        public TypedProperty<N, NestedDocument<N>> nestedDocument() {
+          return new TypedProperty<N, NestedDocument<N>>() {
+            @Override
+            public List<NestedDocument<N>> getValues(N propertyName) {
+              final List<NestedDocument<N>> values = new ArrayList<>();
+
+              for(PropertyValue<N> pv: getPropertyValues(propertyName)) {
+                new PropertyValue.NestedDocumentVisitor<N>() {
+                  @Override
+                  public void visit(NestedDocument<N> v) throws Exception {
+                    values.add(v);
+                  }
+                }.visit(pv);
+              }
+
+              return values;
+            }
+          };
+        }
+      };
+    };
   }
-
-
 
 }

@@ -222,7 +222,7 @@ public class RdfIo{
       /**
        * Used to store documents and properties when reading XML in the readTopLevelDocuments method
        */
-      private Stack<Object> documentStack=new Stack<Object>() ;
+      private Stack<Object> documentStack= new Stack<>() ;
       
       /**
        * Used to store the TopLevelDocument objects in the readTopLevelDocuments method
@@ -278,7 +278,7 @@ public class RdfIo{
         //Used as a buffer to read XML characters in the readTopLevelDocuments method         
         StringBuilder currentText=null;
           
-    	topLevelDocuments = new ArrayList<TopLevelDocument<QName>>();
+    	topLevelDocuments = new ArrayList<>();
         while (xmlReader.hasNext()) {
 
           int eventType = xmlReader.next();

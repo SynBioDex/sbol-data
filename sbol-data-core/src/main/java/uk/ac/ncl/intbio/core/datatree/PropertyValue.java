@@ -48,8 +48,15 @@ public interface PropertyValue<N> {
     }
 
     @Override
-    public void visit(Literal<N> v) throws Exception {
+    public final void visit(Literal<N> v) throws Exception {
       litVis.visit(v);
+    }
+  }
+
+  public static abstract class NestedDocumentVisitor<N> extends Visitor<N> {
+    @Override
+    public final void visit(Literal<N> v) throws Exception {
+      // no-op
     }
   }
 }
