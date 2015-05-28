@@ -455,6 +455,30 @@ public final class Datatree
   public static <N> NamedProperty<N> NamedProperty(final N name, final URI value) {
     return NamedProperty(name, Datatree.<N>Literal(value));
   }
+  
+  /**
+   * Create a value property from a Double value.
+   *
+   * @param name    the property name
+   * @param value   the property value
+   * @param <N>     the property name type
+   * @return  a new NamedProperty with the supplied name and value
+   */
+  public static <N> NamedProperty<N> NamedProperty(final N name, final Double value) {
+    return NamedProperty(name, Datatree.<N>Literal(value));
+  }
+  
+  /**
+   * Create a value property from a Boolean value.
+   *
+   * @param name    the property name
+   * @param value   the property value
+   * @param <N>     the property name type
+   * @return  a new NamedProperty with the supplied name and value
+   */
+  public static <N> NamedProperty<N> NamedProperty(final N name, final Boolean value) {
+    return NamedProperty(name, Datatree.<N>Literal(value));
+  }
 
   /**
    * Create a value property from a nested document value.
