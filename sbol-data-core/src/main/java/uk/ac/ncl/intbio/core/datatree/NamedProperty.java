@@ -29,4 +29,53 @@ public interface NamedProperty<N> {
    * @return the name
    */
 	public N getName();
+
+
+  class Impl<N> implements NamedProperty<N> {
+    private final NestedDocument<N> value;
+    private final N name;
+
+    Impl(NestedDocument<N> value, N name) {
+      this.value = value;
+      this.name = name;
+    }
+
+    @Override
+    public NestedDocument<N> getValue() {
+      return value;
+    }
+
+    @Override
+    public N getName() {
+      return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+
+      Impl<?> impl = (Impl<?>) o;
+
+      if (!value.equals(impl.value)) return false;
+      return name.equals(impl.name);
+
+    }
+
+    @Override
+    public int hashCode() {
+      int result = value.hashCode();
+      result = 31 * result + name.hashCode();
+      return result;
+    }
+
+    @Override
+    public String toString() {
+      return "NamedProperty{" +
+              "value=" + value +
+              ", name=" + name +
+              '}';
+    }
+  }
+
 }
