@@ -3,8 +3,8 @@ package uk.ac.ncl.intbio.core.datatree;
 import javax.xml.namespace.QName;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -53,13 +53,52 @@ public final class Datatree
    * @author Matthew Pocock
    * @param <N>  the name type of the documents
    */
-  public static interface TopLevelDocuments<N> {
+  public interface TopLevelDocuments<N> {
     /**
      * Get the wrapped documents.
      *
      * @return the wrapped documents.
      */
-    public List<TopLevelDocument<N>> getDocuments();
+    List<TopLevelDocument<N>> getDocuments();
+
+    class Impl<N> implements TopLevelDocuments<N> {
+      private final List<TopLevelDocument<N>> documents;
+
+      Impl(List<TopLevelDocument<N>> documents) {
+        if (documents == null)
+          throw new NullPointerException("");
+        this.documents = documents;
+      }
+
+      @Override
+      public List<TopLevelDocument<N>> getDocuments() {
+        return documents;
+      }
+
+      @Override
+      public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Impl impl = (Impl) o;
+
+        return documents.equals(impl.documents);
+
+      }
+
+      @Override
+      public int hashCode() {
+        return documents.hashCode();
+      }
+
+
+      @Override
+      public String toString() {
+        return "TopLevelDocuments{" +
+                "documents=" + documents +
+                '}';
+      }
+    }
   }
 
   /**
@@ -90,12 +129,7 @@ public final class Datatree
    * @return  a new TopLevelDocuments that wraps up documents
    */
   public static <N> TopLevelDocuments<N> TopLevelDocuments(final List<TopLevelDocument<N>> documents) {
-    return new TopLevelDocuments<N>() {
-      @Override
-      public List<TopLevelDocument<N>> getDocuments() {
-        return documents;
-      }
-    };
+    return new TopLevelDocuments.Impl<>(documents);
   }
 
   /**
@@ -111,8 +145,47 @@ public final class Datatree
    *
    * @author Matthew Pocock
    */
-  public static interface NamespaceBindings {
-    public List<NamespaceBinding> getBindings();
+  public interface NamespaceBindings {
+    List<NamespaceBinding> getBindings();
+
+    class Impl implements NamespaceBindings {
+      private final List<NamespaceBinding> bindings;
+
+      Impl(List<NamespaceBinding> bindings) {
+        if(bindings == null)
+          throw new NullPointerException("Can't create a NamespaceBinding instance with null bindings");
+        this.bindings = bindings;
+      }
+
+      @Override
+      public List<NamespaceBinding> getBindings() {
+        return bindings;
+      }
+
+      @Override
+      public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Impl impl = (Impl) o;
+
+        return bindings.equals(impl.bindings);
+
+      }
+
+      @Override
+      public int hashCode() {
+        return bindings.hashCode();
+      }
+
+      @Override
+      public String toString() {
+        return "NamespaceBindings{" +
+                "bindings=" + bindings +
+                '}';
+      }
+    }
+
   }
 
   /**
@@ -125,14 +198,10 @@ public final class Datatree
    *
    * @param bindings  list of bindings
    * @return    a new NamespaceBindnigs wrapping the bindings list
+   * @throws NullPointerException if bindings is null
    */
   public static NamespaceBindings NamespaceBindings(final List<NamespaceBinding> bindings) {
-    return new NamespaceBindings() {
-      @Override
-      public List<NamespaceBinding> getBindings() {
-        return bindings;
-      }
-    };
+    return new NamespaceBindings.Impl(bindings);
   }
 
   /**
@@ -168,8 +237,46 @@ public final class Datatree
    * @author Matthew Pocock
    * @param <N>   the property name type
    */
-  public static interface NamedProperties<N> {
-    public List<NamedProperty<N>> getProperties();
+  public interface NamedProperties<N> {
+    List<NamedProperty<N>> getProperties();
+
+    class Impl<N> implements NamedProperties<N> {
+        private final List<NamedProperty<N>> properties;
+
+        Impl(List<NamedProperty<N>> properties) {
+          if(properties == null)
+            throw new NullPointerException("Can't create a NamedProperties with null properties");
+          this.properties = properties;
+        }
+
+        @Override
+        public List<NamedProperty<N>> getProperties() {
+          return properties;
+        }
+
+      @Override
+      public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Impl<?> impl = (Impl<?>) o;
+
+        return properties.equals(impl.properties);
+
+      }
+
+      @Override
+      public int hashCode() {
+        return properties.hashCode();
+      }
+
+      @Override
+      public String toString() {
+        return "NamedProperties{" +
+                "properties=" + properties +
+                '}';
+      }
+    }
   }
 
   /**
@@ -200,12 +307,7 @@ public final class Datatree
    * @return    a new NamedProperties wrapping the properties
    */
   public static <N> NamedProperties<N> NamedProperties(final List<NamedProperty<N>> properties) {
-    return new NamedProperties<N>() {
-      @Override
-      public List<NamedProperty<N>> getProperties() {
-        return properties;
-      }
-    };
+    return new NamedProperties.Impl<>(properties);
   }
 
   /**
@@ -237,6 +339,25 @@ public final class Datatree
    * @param bindings    the namespace bindings
    * @param type        the type of the document
    * @param identity    the identity of the document
+   * @param <N>         the property name type
+   * @return  a new TopLevelDocument instance
+   */
+  public static <N> TopLevelDocument<N> TopLevelDocument(final NamespaceBindings bindings,
+                                                         final N type,
+                                                         final URI identity) {
+    return TopLevelDocument(bindings, type, identity, Datatree.<N>NamedProperties());
+  }
+
+  /**
+   * Factory for {@link TopLevelDocument}.
+   *
+   * <p>
+   *   This builds a new TopLevelDocument using the supplied data.
+   * </p>
+   *
+   * @param bindings    the namespace bindings
+   * @param type        the type of the document
+   * @param identity    the identity of the document
    * @param properties  the property list of the document
    * @param <N>         the property name type
    * @return  a new TopLevelDocument instance
@@ -245,37 +366,11 @@ public final class Datatree
                                                          final N type,
                                                          final URI identity,
                                                          final NamedProperties<N> properties) {
-    class TLD extends IdentifiableDocument.Abstract<N> implements TopLevelDocument<N> {
-      @Override
-      public N getType() {
-        return type;
-      }
-
-      @Override
-      public URI getIdentity() {
-        return identity;
-      }
-
-      @Override
-      public List<NamedProperty<N>> getProperties() {
-        if (properties!=null)
-        {
-          return properties.getProperties();
-        }
-        else
-        {
-          return Collections.emptyList();
-        }
-      }
-
-      @Override
-      public List<uk.ac.ncl.intbio.core.datatree.NamespaceBinding> getNamespaceBindings()
-      {
-        return bindings.getBindings();
-      }
-    }
-
-    return new TLD();
+    return new TopLevelDocument.Impl<>(
+            bindings.getBindings(),
+            type,
+            identity,
+            properties.getProperties());
   }
 
   /**
@@ -307,6 +402,26 @@ public final class Datatree
    * @param bindings    the namespace bindings
    * @param type        the type of the document
    * @param identity    the identity of the document
+   * @param <N>         the property name type
+   * @return  a new TopLevelDocument instance
+   */
+  public static <N> NestedDocument<N> NestedDocument(final NamespaceBindings bindings,
+                                                     final N type,
+                                                     final URI identity)
+  {
+    return NestedDocument(bindings, type, identity, Datatree.<N>NamedProperties());
+  }
+
+  /**
+   * Factory for {@link NestedDocument}.
+   *
+   * <p>
+   * This builds a new NestedDocument using the supplied data.
+   * </p>
+   *
+   * @param bindings    the namespace bindings
+   * @param type        the type of the document
+   * @param identity    the identity of the document
    * @param properties  the property list of the document
    * @param <N>         the property name type
    * @return  a new TopLevelDocument instance
@@ -316,41 +431,11 @@ public final class Datatree
                                                      final URI identity,
                                                      final NamedProperties<N> properties)
   {
-    class ND extends IdentifiableDocument.Abstract<N> implements NestedDocument<N>
-    {
-      @Override
-      public N getType()
-      {
-        return type;
-      }
-
-      @Override
-      public URI getIdentity()
-      {
-        return identity;
-      }
-
-      @Override
-      public List<NamedProperty<N>> getProperties()
-      {
-        if (properties!=null)
-        {
-          return properties.getProperties();
-        }
-        else
-        {
-          return Collections.emptyList();
-        }
-      }
-
-      @Override
-      public List<uk.ac.ncl.intbio.core.datatree.NamespaceBinding> getNamespaceBindings()
-      {
-        return bindings.getBindings();
-      }
-    }
-
-    return new ND();
+    return new NestedDocument.Impl<>(
+            bindings.getBindings(),
+            type,
+            identity,
+            properties.getProperties());
   }
 
   /**
@@ -383,19 +468,7 @@ public final class Datatree
   public static <N> DocumentRoot<N> DocumentRoot(
           final NamespaceBindings bindings,
           final TopLevelDocuments<N> documents) {
-    class DR implements DocumentRoot<N> {
-      @Override
-      public List<TopLevelDocument<N>> getTopLevelDocuments() {
-        return documents.getDocuments();
-      }
-
-      @Override
-      public List<NamespaceBinding> getNamespaceBindings() {
-        return bindings.getBindings();
-      }
-    }
-
-    return new DR();
+    return new DocumentRoot.Impl<>(bindings.getBindings(), documents.getDocuments());
   }
 
   /**
@@ -407,17 +480,7 @@ public final class Datatree
    * @return  a new NamedProperty with the supplied name and value
    */
   public static <N> NamedProperty<N> NamedProperty(final N name, final PropertyValue<N> value) {
-    return new NamedProperty<N>() {
-      @Override
-      public PropertyValue<N> getValue() {
-        return value;
-      }
-
-      @Override
-      public N getName() {
-        return name;
-      }
-    };
+    return new NamedProperty.Impl<>(name, value);
   }
 
   /**
@@ -489,17 +552,7 @@ public final class Datatree
    * @return  a new NamedProperty with the supplied name and value
    */
   public static <N> NamedProperty<N> NamedProperty(final N name, final NestedDocument<N> value) {
-    return new NamedProperty<N>() {
-      @Override
-      public NestedDocument<N> getValue() {
-        return value;
-      }
-
-      @Override
-      public N getName() {
-        return name;
-      }
-    };
+    return new NamedProperty.Impl<>(name, value);
   }
 
   /**
@@ -509,12 +562,7 @@ public final class Datatree
    * @return  a new NamedProperty with the supplied name and value
    */
   public static <N> Literal.StringLiteral<N> Literal(final String value) {
-    return new Literal.StringLiteral<N>() {
-      @Override
-      public String getValue() {
-        return value;
-      }
-    };
+    return new Literal.StringLiteral<>(value);
   }
 
   /**
@@ -524,12 +572,7 @@ public final class Datatree
    * @return  a new NamedProperty with the supplied name and value
    */
   public static <N> Literal.IntegerLiteral<N> Literal(final int value) {
-    return new Literal.IntegerLiteral<N>() {
-      @Override
-      public Integer getValue() {
-        return value;
-      }
-    };
+    return new Literal.IntegerLiteral<>(value);
   }
 
   /**
@@ -539,12 +582,7 @@ public final class Datatree
    * @return  a new NamedProperty with the supplied name and value
    */
   public static <N> Literal.DoubleLiteral<N> Literal(final double value) {
-    return new Literal.DoubleLiteral<N>() {
-      @Override
-      public Double getValue() {
-        return value;
-      }
-    };
+    return new Literal.DoubleLiteral<>(value);
   }
 
   /**
@@ -554,12 +592,7 @@ public final class Datatree
    * @return  a new NamedProperty with the supplied name and value
    */
   public static <N> Literal.UriLiteral<N> Literal(final URI value) {
-    return new Literal.UriLiteral<N>() {
-      @Override
-      public URI getValue() {
-        return value;
-      }
-    };
+    return new Literal.UriLiteral<>(value);
   }
 
   /**
@@ -569,17 +602,7 @@ public final class Datatree
    * @return  a new NamedProperty with the supplied name and value
    */
   public static <N> Literal.TypedLiteral<N> Literal(final String value, final QName type) {
-    return new Literal.TypedLiteral<N>() {
-      @Override
-      public String getValue() {
-        return value;
-      }
-
-      @Override
-      public QName getType() {
-        return type;
-      }
-    };
+    return new Literal.TypedLiteral<>(value, type);
   }
 
   /**
@@ -589,12 +612,7 @@ public final class Datatree
    * @return  a new NamedProperty with the supplied name and value
    */
   public static <N> Literal.BooleanLiteral<N> Literal(final boolean value) {
-    return new Literal.BooleanLiteral<N>() {
-      @Override
-      public Boolean getValue() {
-        return value;
-      }
-    };
+    return new Literal.BooleanLiteral<>(value);
   }
 
   /**
