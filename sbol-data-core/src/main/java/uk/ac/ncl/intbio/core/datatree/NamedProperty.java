@@ -32,16 +32,19 @@ public interface NamedProperty<N> {
 
 
   class Impl<N> implements NamedProperty<N> {
-    private final NestedDocument<N> value;
+    private final PropertyValue<N> value;
     private final N name;
 
-    Impl(NestedDocument<N> value, N name) {
-      this.value = value;
+    Impl(N name, PropertyValue<N> value) {
+      if(name == null) throw new IllegalArgumentException("Can't create NamedProperty with null name");
+      if(value == null) throw new IllegalArgumentException("Can't create NamedProperty with null value");
+
       this.name = name;
+      this.value = value;
     }
 
     @Override
-    public NestedDocument<N> getValue() {
+    public PropertyValue<N> getValue() {
       return value;
     }
 

@@ -468,19 +468,7 @@ public final class Datatree
   public static <N> DocumentRoot<N> DocumentRoot(
           final NamespaceBindings bindings,
           final TopLevelDocuments<N> documents) {
-    class DR implements DocumentRoot<N> {
-      @Override
-      public List<TopLevelDocument<N>> getTopLevelDocuments() {
-        return documents.getDocuments();
-      }
-
-      @Override
-      public List<NamespaceBinding> getNamespaceBindings() {
-        return bindings.getBindings();
-      }
-    }
-
-    return new DR();
+    return new DocumentRoot.Impl<>(bindings.getBindings(), documents.getDocuments());
   }
 
   /**
@@ -492,17 +480,7 @@ public final class Datatree
    * @return  a new NamedProperty with the supplied name and value
    */
   public static <N> NamedProperty<N> NamedProperty(final N name, final PropertyValue<N> value) {
-    return new NamedProperty<N>() {
-      @Override
-      public PropertyValue<N> getValue() {
-        return value;
-      }
-
-      @Override
-      public N getName() {
-        return name;
-      }
-    };
+    return new NamedProperty.Impl<>(name, value);
   }
 
   /**
@@ -574,7 +552,7 @@ public final class Datatree
    * @return  a new NamedProperty with the supplied name and value
    */
   public static <N> NamedProperty<N> NamedProperty(final N name, final NestedDocument<N> value) {
-    return new NamedProperty.Impl<>(value, name);
+    return new NamedProperty.Impl<>(name, value);
   }
 
   /**
