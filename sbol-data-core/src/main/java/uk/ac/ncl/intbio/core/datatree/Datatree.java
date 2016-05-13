@@ -3,6 +3,7 @@ package uk.ac.ncl.intbio.core.datatree;
 import javax.xml.namespace.QName;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -338,6 +339,25 @@ public final class Datatree
    * @param bindings    the namespace bindings
    * @param type        the type of the document
    * @param identity    the identity of the document
+   * @param <N>         the property name type
+   * @return  a new TopLevelDocument instance
+   */
+  public static <N> TopLevelDocument<N> TopLevelDocument(final NamespaceBindings bindings,
+                                                         final N type,
+                                                         final URI identity) {
+    return TopLevelDocument(bindings, type, identity, Datatree.<N>NamedProperties());
+  }
+
+  /**
+   * Factory for {@link TopLevelDocument}.
+   *
+   * <p>
+   *   This builds a new TopLevelDocument using the supplied data.
+   * </p>
+   *
+   * @param bindings    the namespace bindings
+   * @param type        the type of the document
+   * @param identity    the identity of the document
    * @param properties  the property list of the document
    * @param <N>         the property name type
    * @return  a new TopLevelDocument instance
@@ -346,7 +366,11 @@ public final class Datatree
                                                          final N type,
                                                          final URI identity,
                                                          final NamedProperties<N> properties) {
-    return new TopLevelDocument.Impl<>(bindings.getBindings(), type, identity, properties.getProperties());
+    return new TopLevelDocument.Impl<>(
+            bindings.getBindings(),
+            type,
+            identity,
+            properties.getProperties());
   }
 
   /**
@@ -378,6 +402,26 @@ public final class Datatree
    * @param bindings    the namespace bindings
    * @param type        the type of the document
    * @param identity    the identity of the document
+   * @param <N>         the property name type
+   * @return  a new TopLevelDocument instance
+   */
+  public static <N> NestedDocument<N> NestedDocument(final NamespaceBindings bindings,
+                                                     final N type,
+                                                     final URI identity)
+  {
+    return NestedDocument(bindings, type, identity, Datatree.<N>NamedProperties());
+  }
+
+  /**
+   * Factory for {@link NestedDocument}.
+   *
+   * <p>
+   * This builds a new NestedDocument using the supplied data.
+   * </p>
+   *
+   * @param bindings    the namespace bindings
+   * @param type        the type of the document
+   * @param identity    the identity of the document
    * @param properties  the property list of the document
    * @param <N>         the property name type
    * @return  a new TopLevelDocument instance
@@ -387,7 +431,11 @@ public final class Datatree
                                                      final URI identity,
                                                      final NamedProperties<N> properties)
   {
-    return new NestedDocument.Impl<>(bindings.getBindings(), type, identity, properties.getProperties());
+    return new NestedDocument.Impl<>(
+            bindings.getBindings(),
+            type,
+            identity,
+            properties.getProperties());
   }
 
   /**
