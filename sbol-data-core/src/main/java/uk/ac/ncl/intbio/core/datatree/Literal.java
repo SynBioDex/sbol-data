@@ -37,9 +37,24 @@ public interface Literal<N> extends PropertyValue<N>
    *
    * @author Matthew Pocock
    */
-  public static interface StringLiteral<N> extends Literal<N> {
+  public static class StringLiteral<N> extends Literal.Abstract<N> {
+    private final String value;
+
+    public StringLiteral(String value) {
+      if(value == null) throw new NullPointerException("Can't create a StringLiteral with null value");
+      this.value = value;
+    }
+
     @Override
-    String getValue();
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return "StringLiteral{value=" + value +
+      "}";
+    }
   }
 
   /**
@@ -47,9 +62,24 @@ public interface Literal<N> extends PropertyValue<N>
    *
    * @author Matthew Pocock
    */
-  public static interface UriLiteral<N> extends Literal<N> {
+  public static class UriLiteral<N> extends Literal.Abstract<N> {
+    private final URI value;
+
+    public UriLiteral(URI value) {
+      if(value == null) throw new NullPointerException("Can't create a UriLiteral with null value");
+      this.value = value;
+    }
+
     @Override
-    URI getValue();
+    public URI getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return "UriLiteral{value=" + value +
+      "}";
+    }
   }
 
   /**
@@ -57,9 +87,24 @@ public interface Literal<N> extends PropertyValue<N>
    *
    * @author Matthew Pocock
    */
-  public static interface IntegerLiteral<N> extends Literal<N> {
+  public static class IntegerLiteral<N> extends Literal.Abstract<N> {
+    private final Integer value;
+
+    public IntegerLiteral(Integer value) {
+      if(value == null) throw new NullPointerException("Can't create a IntegerLiteral with null value");
+      this.value = value;
+    }
+
     @Override
-    Integer getValue();
+    public Integer getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return "IntegerLiteral{value=" + value +
+      "}";
+    }
   }
 
   /**
@@ -67,9 +112,50 @@ public interface Literal<N> extends PropertyValue<N>
    *
    * @author Matthew Pocock
    */
-  public static interface DoubleLiteral<N> extends Literal<N> {
+  public static class DoubleLiteral<N> extends Literal.Abstract<N> {
+    private final Double value;
+
+    public DoubleLiteral(Double value) {
+      if(value == null) throw new NullPointerException("Can't create a DoubleLiteral with null value");
+      this.value = value;
+    }
+
     @Override
-    Double getValue();
+    public Double getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return "DoubleLiteral{value=" + value +
+              "}";
+    }
+  }
+
+  /**
+   * Literals providing a boolean.
+   *
+   * @author Matthew Pocock
+   */
+  public static class BooleanLiteral<N> extends Literal.Abstract<N> {
+    private final Boolean value;
+
+    public BooleanLiteral(Boolean value) {
+      if(value == null) throw new NullPointerException("Can't create a BooleanLiteral with null value");
+      this.value = value;
+    }
+
+    @Override
+    public Boolean getValue() {
+      return value;
+    }
+
+
+    @Override
+    public String toString() {
+      return "BooleanLiteral{value=" + value +
+              "}";
+    }
   }
 
   /**
@@ -77,9 +163,22 @@ public interface Literal<N> extends PropertyValue<N>
    *
    * @author Matthew Pocock
    */
-  public static interface TypedLiteral<N> extends Literal<N> {
+  public static class TypedLiteral<N> extends Literal.Abstract<N> {
+    private final String value;
+    private final QName type;
+
+    public TypedLiteral(String value, QName type) {
+      if(value == null) throw new NullPointerException("Can't create a TypedLiteral with null value");
+      if(type == null) throw new NullPointerException("Can't create a TypedLiteral with null type");
+
+      this.value = value;
+      this.type = type;
+    }
+
     @Override
-    String getValue();
+    public String getValue() {
+      return value;
+    }
 
     /**
      * The type of the typed literal.
@@ -89,17 +188,34 @@ public interface Literal<N> extends PropertyValue<N>
      *
      * @return tye type
      */
-    QName getType();
+    public QName getType() {
+      return getType();
+    }
+
+    @Override
+    public String toString() {
+      return "TypedLiteral{" +
+              "value='" + value + '\'' +
+              ", type=" + type +
+              '}';
+    }
   }
 
-  /**
-   * Literals providing a boolean.
-   *
-   * @author Matthew Pocock
-   */
-  public static interface BooleanLiteral<N> extends Literal<N> {
+  abstract class Abstract<N> implements Literal<N> {
     @Override
-    Boolean getValue();
+    public int hashCode() {
+      return getValue().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if(this == obj) return true;
+
+      if(obj == null || !(obj instanceof Literal<?>)) return false;
+      Literal<?> l = (Literal<?>) obj;
+
+      return getValue().equals(l.getValue());
+    }
   }
 
   /**

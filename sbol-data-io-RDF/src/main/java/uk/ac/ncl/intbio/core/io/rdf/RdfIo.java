@@ -334,11 +334,11 @@ public class RdfIo{
           IdentifiableDocument<QName> document = null;
           if (documentStack.isEmpty())
           {
-            document = Datatree.TopLevelDocument(bindings, elementURI, identity, null);
+            document = Datatree.TopLevelDocument(bindings, elementURI, identity);
           }
           else
           {
-            document = Datatree.NestedDocument(bindings, elementURI, identity, null);
+            document = Datatree.NestedDocument(bindings, elementURI, identity);
           }
           documentStack.add(document);
         }
