@@ -1,7 +1,9 @@
 package uk.ac.ncl.intbio.core.io.rdf;
 
 import java.net.URI;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 import java.util.Stack;
 
@@ -222,7 +224,7 @@ public class RdfIo{
       /**
        * Used to store documents and properties when reading XML in the readTopLevelDocuments method
        */
-      private Stack<Object> documentStack=new Stack<Object>() ;
+      private Deque<Object> documentStack=new ArrayDeque<Object>() ;
       
       /**
        * Used to store the TopLevelDocument objects in the readTopLevelDocuments method
@@ -340,7 +342,7 @@ public class RdfIo{
           {
             document = Datatree.NestedDocument(bindings, elementURI, identity);
           }
-          documentStack.add(document);
+          documentStack.push(document);
         }
         else
         {
@@ -354,7 +356,7 @@ public class RdfIo{
             // TODO Make sure this is ok. The value type is not known yet!
             property = Datatree.NamedProperty(elementURI, "");
           }
-          documentStack.add(property);
+          documentStack.push(property);
         }
       }
 
@@ -417,7 +419,7 @@ public class RdfIo{
         documentInStack=addProperty(documentInStack, property);
 
         //Put the document back to the stack
-        documentStack.add(documentInStack);
+        documentStack.push(documentInStack);
       }
 
       private IdentifiableDocument<QName> addProperty(
