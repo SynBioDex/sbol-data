@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>uk.ac.ncl.intbio</groupId>
+	<groupId>org.sbolstandard</groupId>
 	<artifactId>sbol-data</artifactId>
-	<version>0.1.3</version>
+	<version>0.2.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>sbol-data</name>
 	<description>APIs to manage SBOL-shaped data documents</description>
@@ -92,6 +92,20 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-gpg-plugin</artifactId>
+			<version>1.5</version>
+			<executions>
+			<execution>
+			<id>sign-artifacts</id>
+			<phase>verify</phase>
+			<goals>
+				<goal>sign</goal>
+				</goals>
+			</execution>
+			</executions>
 			</plugin>
 			    <plugin>
       <groupId>org.sonatype.plugins</groupId>
