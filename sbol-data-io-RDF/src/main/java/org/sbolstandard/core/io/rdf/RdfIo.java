@@ -3,7 +3,6 @@ package org.sbolstandard.core.io.rdf;
 import java.net.URI;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 import java.util.Stack;
 
@@ -224,7 +223,7 @@ public class RdfIo{
       /**
        * Used to store documents and properties when reading XML in the readTopLevelDocuments method
        */
-      private Deque<Object> documentStack=new ArrayDeque<Object>() ;
+      private Stack<Object> documentStack=new Stack<Object>() ;
       
       /**
        * Used to store the TopLevelDocument objects in the readTopLevelDocuments method
