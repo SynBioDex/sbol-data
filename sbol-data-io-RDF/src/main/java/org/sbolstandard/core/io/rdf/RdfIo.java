@@ -440,7 +440,7 @@ public class RdfIo{
         NamedProperty<QName>[] propertyArray = properties.toArray(new NamedProperty[properties.size()]);
         NamedProperties<QName> namedProperties = Datatree.NamedProperties(propertyArray);
         NamespaceBindings bindings = Datatree.NamespaceBindings(
-                (NamespaceBinding[]) document.getNamespaceBindings().toArray());
+                (NamespaceBinding[]) document.getNamespaceBindings().toArray(new NamespaceBinding[document.getNamespaceBindings().size()]));
 
         if (document instanceof TopLevelDocument)
         {
