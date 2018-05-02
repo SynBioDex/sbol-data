@@ -42,9 +42,9 @@ referencing the other document.
 ## Use
 
 ```java
-import uk.ac.ncl.intbio.core.datatree.*;
-import static uk.ac.ncl.intbio.core.datatree.Datatree;
-import uk.ac.ncl.intbio.examples.Sbol2Terms;
+import org.sbolstandard.core.datatree.*;
+import static org.sbolstandard.core.datatree.Datatree;
+import org.sbolstandard.examples.Sbol2Terms;
 
 ...
 
